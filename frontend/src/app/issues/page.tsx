@@ -273,7 +273,7 @@ function IssuesPageInner() {
       </div>
 
       {/* Main Content Area */}
-      <div className="border border-border/50 rounded-3xl bg-sidebar/20 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+      <div className="border border-border/50 rounded-3xl bg-sidebar/20 p-8 flex flex-col items-stretch justify-start relative overflow-hidden">
         
         {visibleIssues.length === 0 ? (
           <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
@@ -315,16 +315,16 @@ function IssuesPageInner() {
             ))}
 
             {/* Pagination */}
-            <div className="pt-6 flex items-center justify-between">
+            <div className="pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-[10px] font-bold text-text-muted">
                 Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage(page - 1)}
-                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Prev
                 </button>
@@ -332,7 +332,7 @@ function IssuesPageInner() {
                   type="button"
                   disabled={page * limit >= total}
                   onClick={() => setPage(page + 1)}
-                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

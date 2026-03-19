@@ -1,5 +1,5 @@
 import React from 'react';
-import { IssuePriority } from '@/types/issue';
+import { IssuePriority, IssueStatus } from '@/types/issue';
 import Button from './common/Button';
 
 interface IssueFormProps {
@@ -9,6 +9,8 @@ interface IssueFormProps {
   setDescription: (description: string) => void;
   priority: IssuePriority;
   setPriority: (priority: IssuePriority) => void;
+  status?: IssueStatus;
+  setStatus?: (status: IssueStatus) => void;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   onCancel: () => void;
@@ -18,14 +20,18 @@ const IssueForm: React.FC<IssueFormProps> = ({
   title, setTitle,
   description, setDescription,
   priority, setPriority,
+  status,
+  setStatus,
   onSubmit, isSubmitting, onCancel
 }) => {
+  const showStatus = status !== undefined && typeof setStatus === 'function';
+
   return (
     <div className="bg-sidebar border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
       <div className="bg-accent h-1.5 w-full"></div>
       <form onSubmit={onSubmit} className="p-8 space-y-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div className="space-y-3 col-span-2 md:col-span-1">
+          <div className="space-y-3 col-span-2 md:col-span-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Issue Title</label>
             <input
               required
@@ -49,6 +55,23 @@ const IssueForm: React.FC<IssueFormProps> = ({
               ))}
             </select>
           </div>
+
+          {showStatus && (
+            <div className="space-y-3 col-span-2 md:col-span-1">
+              <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Status</label>
+              <select
+                className="w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block p-4 outline-none transition-all appearance-none cursor-pointer"
+                value={status}
+                onChange={e => setStatus(e.target.value as any)}
+              >
+                {Object.values(IssueStatus).map(s => (
+                  <option key={s} value={s} className="bg-sidebar text-white">
+                    {s.split('_').join(' ')}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="space-y-3 col-span-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Detailed Description</label>
             <textarea

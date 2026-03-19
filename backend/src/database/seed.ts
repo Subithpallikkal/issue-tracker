@@ -5,9 +5,21 @@ import { issues, discussions } from './schema';
 import { IssueStatus, IssuePriority } from '../enums/issue.enum';
 
 async function seed() {
-  const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:Subith@123@localhost:5432/issue_tracker';
+  const connectionString = (process.env.DATABASE_URL || 'postgresql://postgres:Subith@123@localhost:5432/issue_tracker').trim();
   console.log('Connecting to:', connectionString);
-  const pool = new Pool({ connectionString });
+
+  // Render/Postgres providers typically require SSL for external connections.
+  // When seeding from your local machine, enable SSL automatically for non-local hosts.
+  const isLocal =
+    connectionString.includes('localhost:') ||
+    connectionString.includes('127.0.0.1:') ||
+    connectionString.includes('@localhost') ||
+    connectionString.includes('@127.0.0.1');
+
+  const pool = new Pool({
+    connectionString,
+    ssl: isLocal ? undefined : { rejectUnauthorized: false },
+  });
   const db = drizzle(pool);
 
   console.log('Seeding issues...');

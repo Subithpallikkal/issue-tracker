@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { api } from '@/lib/api';
 import { AddDiscussion, AIAnalysis, DiscussionList, IssueForm } from '@/components';
 import type { Discussion, IssueWithDiscussions } from '@/types/issue';
-import { IssuePriority } from '@/types/issue';
+import { IssuePriority, IssueStatus } from '@/types/issue';
 import { formatDate } from '@/lib/utils';
 
 export default function IssuePage() {
@@ -37,6 +37,7 @@ export default function IssuePage() {
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editPriority, setEditPriority] = useState<IssuePriority | null>(null);
+  const [editStatus, setEditStatus] = useState<IssueStatus>(IssueStatus.OPEN);
   const [isUpdatingIssue, setIsUpdatingIssue] = useState(false);
 
   const [aiSummary, setAiSummary] = useState<string | null>(null);
@@ -55,6 +56,7 @@ export default function IssuePage() {
       setEditTitle('');
       setEditDescription('');
       setEditPriority(IssuePriority.MEDIUM);
+      setEditStatus(IssueStatus.OPEN);
       setIsEditingIssue(true);
       return;
     }
@@ -81,6 +83,7 @@ export default function IssuePage() {
           setEditTitle(res.title);
           setEditDescription(res.description);
           setEditPriority(res.priority);
+          setEditStatus(res.status);
         }
       } catch (e: any) {
         setError(e?.message || 'Failed to load issue.');
@@ -185,6 +188,7 @@ export default function IssuePage() {
     setEditTitle(issue.title);
     setEditDescription(issue.description);
     setEditPriority(issue.priority);
+    setEditStatus(issue.status);
     setIsEditingIssue(true);
   };
 
@@ -211,6 +215,7 @@ export default function IssuePage() {
         title: editTitle,
         description: editDescription,
         priority: editPriority,
+        status: editStatus,
       });
       setIssue((prev) =>
         prev ? { ...prev, ...updated, discussions: prev.discussions } : { ...(updated as any), discussions: [] },
@@ -253,6 +258,13 @@ export default function IssuePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 px-4">
       <div className="space-y-2 pt-8">
+        <Link
+          href="/issues"
+          className="md:hidden inline-flex items-center gap-2 text-xs font-bold text-text-muted hover:text-white transition-colors"
+        >
+          ← Prev
+        </Link>
+
         <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-1">
           <Link href="/" className="hover:text-white transition-colors">
             Home
@@ -352,6 +364,8 @@ export default function IssuePage() {
               setDescription={setEditDescription}
               priority={editPriority ?? (issue ? issue.priority : IssuePriority.MEDIUM)}
               setPriority={(p) => setEditPriority(p)}
+              status={!isCreateMode ? editStatus : undefined}
+              setStatus={!isCreateMode ? setEditStatus : undefined}
               onSubmit={handleUpdateIssue}
               isSubmitting={isUpdatingIssue}
               onCancel={() => {
@@ -428,16 +442,16 @@ export default function IssuePage() {
 
         {/* Discussion pagination */}
         {discTotal > discLimit && (
-          <div className="pt-6 flex items-center justify-between">
+          <div className="pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-[10px] font-bold text-text-muted">
               Page {discPage} of {Math.max(1, Math.ceil(discTotal / discLimit))}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <button
                 type="button"
                 disabled={discPage <= 1}
                 onClick={() => setDiscPage((p) => Math.max(1, p - 1))}
-                className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Prev
               </button>
@@ -445,7 +459,7 @@ export default function IssuePage() {
                 type="button"
                 disabled={discPage * discLimit >= discTotal}
                 onClick={() => setDiscPage((p) => p + 1)}
-                className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>

@@ -11,15 +11,15 @@ interface IssueCardProps {
 const IssueCard: React.FC<IssueCardProps> = ({ issue, onDelete }) => {
   return (
     <Link href={`/issues/${issue.uid}`} className="block group">
-      <div className="bg-sidebar/40 border border-border hover:border-accent/50 p-4 rounded-xl flex items-center justify-between transition-all group-hover:bg-sidebar/60">
-        <div className="flex items-center gap-4">
+      <div className="bg-sidebar/40 border border-border hover:border-accent/50 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 transition-all group-hover:bg-sidebar/60">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
           <div className="w-5 h-5 rounded border border-text-muted/50 flex items-center justify-center text-[8px] text-text-muted">✔</div>
           <div>
             <h3 className="text-sm font-bold text-white group-hover:text-accent transition-colors">{issue.title}</h3>
             <p className="text-xs text-text-muted line-clamp-1">{issue.description}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 sm:justify-end flex-wrap">
           <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest bg-white/5 text-text-muted border border-border">
             {issue.priority}
           </span>

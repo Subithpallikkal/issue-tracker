@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,9 +39,10 @@ export default function RootLayout({
               {children}
             </div>
           </main>
-          <footer className="h-12 px-8 border-t border-border bg-sidebar flex items-center justify-between text-[10px] text-text-muted uppercase tracking-widest font-bold z-20">
+          <MobileBottomNav />
+          <footer className="hidden md:flex h-12 px-8 border-t border-border bg-sidebar items-center justify-between text-[10px] text-text-muted uppercase tracking-widest font-bold z-20">
             <div className="flex items-center gap-4">
-              <span>© {new Date().getFullYear()} IssueFlow</span>
+              <span>© {new Date().getFullYear()} Issue Tracker</span>
               <span className="w-1 h-1 bg-border rounded-full"></span>
               <span className="text-accent/80">v1.0.4-stable</span>
             </div>

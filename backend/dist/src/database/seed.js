@@ -6,9 +6,16 @@ const pg_1 = require("pg");
 const schema_1 = require("./schema");
 const issue_enum_1 = require("../enums/issue.enum");
 async function seed() {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:Subith@123@localhost:5432/issue_tracker';
+    const connectionString = (process.env.DATABASE_URL || 'postgresql://postgres:Subith@123@localhost:5432/issue_tracker').trim();
     console.log('Connecting to:', connectionString);
-    const pool = new pg_1.Pool({ connectionString });
+    const isLocal = connectionString.includes('localhost:') ||
+        connectionString.includes('127.0.0.1:') ||
+        connectionString.includes('@localhost') ||
+        connectionString.includes('@127.0.0.1');
+    const pool = new pg_1.Pool({
+        connectionString,
+        ssl: isLocal ? undefined : { rejectUnauthorized: false },
+    });
     const db = (0, node_postgres_1.drizzle)(pool);
     console.log('Seeding issues...');
     try {
