@@ -15,7 +15,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    const corsOriginEnv = process.env.CORS_ORIGIN;
+    const corsOriginEnv = process.env.CORS_ORIGIN || " https://issue-tracker-ten-sable.vercel.app/";
     const allowedOrigins = corsOriginEnv
         ? corsOriginEnv.split(',').map((origin) => origin.trim()).filter(Boolean)
         : ['http://localhost:3000'];
