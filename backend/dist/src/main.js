@@ -15,7 +15,15 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    app.enableCors();
+    const corsOriginEnv = process.env.CORS_ORIGIN;
+    const allowedOrigins = corsOriginEnv
+        ? corsOriginEnv.split(',').map((origin) => origin.trim()).filter(Boolean)
+        : ['http://localhost:3000'];
+    app.enableCors({
+        origin: allowedOrigins,
+        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+        credentials: true,
+    });
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Issue Management Platform API')
         .setDescription('API documentation for the minimal issue management platform')

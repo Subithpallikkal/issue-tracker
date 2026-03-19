@@ -22,7 +22,16 @@ async function bootstrap() {
   }));
 
   // CORS
-  app.enableCors();
+  const corsOriginEnv = process.env.CORS_ORIGIN;
+  const allowedOrigins = corsOriginEnv
+    ? corsOriginEnv.split(',').map((origin) => origin.trim()).filter(Boolean)
+    : ['http://localhost:3000'];
+
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  });
 
   // Swagger setup
   const config = new DocumentBuilder()
