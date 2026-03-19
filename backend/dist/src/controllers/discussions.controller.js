@@ -25,8 +25,16 @@ let DiscussionsController = class DiscussionsController {
     create(createDiscussionDto) {
         return this.discussionsService.create(createDiscussionDto);
     }
-    findByIssue(issueUid) {
-        return this.discussionsService.findByIssue(issueUid);
+    findByIssue(issueUid, page, limit) {
+        const p = page ? Number(page) : 1;
+        const l = limit ? Number(limit) : 10;
+        return this.discussionsService.findByIssue(issueUid, p, l);
+    }
+    update(updateDiscussionDto) {
+        return this.discussionsService.update(updateDiscussionDto);
+    }
+    remove(deleteDiscussionDto) {
+        return this.discussionsService.remove(deleteDiscussionDto);
     }
 };
 exports.DiscussionsController = DiscussionsController;
@@ -39,13 +47,31 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], DiscussionsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)('issue/:issueUid'),
+    (0, common_1.Get)('get_all_by_issue/:issueUid'),
     (0, swagger_1.ApiOperation)({ summary: 'Get all discussions for a specific issue' }),
-    __param(0, (0, common_1.Param)('issueUid', common_1.ParseUUIDPipe)),
+    __param(0, (0, common_1.Param)('issueUid', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Query)('page')),
+    __param(2, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number, String, String]),
     __metadata("design:returntype", void 0)
 ], DiscussionsController.prototype, "findByIssue", null);
+__decorate([
+    (0, common_1.Patch)('update'),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a discussion comment' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [discussion_dto_1.UpdateDiscussionDto]),
+    __metadata("design:returntype", void 0)
+], DiscussionsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)('delete'),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a discussion comment' }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [discussion_dto_1.DeleteDiscussionDto]),
+    __metadata("design:returntype", void 0)
+], DiscussionsController.prototype, "remove", null);
 exports.DiscussionsController = DiscussionsController = __decorate([
     (0, swagger_1.ApiTags)('discussions'),
     (0, common_1.Controller)('discussions'),

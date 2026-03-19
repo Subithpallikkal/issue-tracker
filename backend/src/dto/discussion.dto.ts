@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 
 export class CreateDiscussionDto {
-  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000' })
-  @IsUUID()
+  @ApiProperty({ example: 123 })
+  @IsNumber()
   @IsNotEmpty()
-  issueUid: string;
+  issueUid: number;
 
   @ApiProperty({ example: 'I am working on a fix for this.' })
   @IsString()
@@ -16,4 +16,23 @@ export class CreateDiscussionDto {
   @IsString()
   @IsNotEmpty()
   author: string;
+}
+
+export class UpdateDiscussionDto {
+  @ApiProperty({ example: 123 })
+  @IsNumber()
+  @IsNotEmpty()
+  uid: number;
+
+  @ApiProperty({ example: 'Updated comment content.' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+}
+
+export class DeleteDiscussionDto {
+  @ApiProperty({ example: 123 })
+  @IsNumber()
+  @IsNotEmpty()
+  uid: number;
 }

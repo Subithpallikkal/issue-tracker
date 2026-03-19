@@ -1,9 +1,9 @@
-import { pgTable, text, varchar, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, timestamp, integer } from 'drizzle-orm/pg-core';
 import { statusEnum, priorityEnum } from './enums.schema';
 import { IssueStatus, IssuePriority } from '../../enums/issue.enum';
 
 export const issues = pgTable('issues', {
-  uid: uuid('uid').defaultRandom().primaryKey(),
+  uid: integer('uid').primaryKey().generatedAlwaysAsIdentity(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description').notNull(),
   status: statusEnum('status').default(IssueStatus.OPEN).notNull(),

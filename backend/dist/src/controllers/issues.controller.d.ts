@@ -1,10 +1,10 @@
 import { IssuesService } from '../services/issues.service';
-import { CreateIssueDto, UpdateIssueDto } from '../dto/issue.dto';
+import { CreateIssueDto, UpdateIssueDto, DeleteIssueDto, AnalyzeIssueDto } from '../dto/issue.dto';
 export declare class IssuesController {
     private readonly issuesService;
     constructor(issuesService: IssuesService);
     create(createIssueDto: CreateIssueDto): Promise<{
-        uid: string;
+        uid: number;
         title: string;
         description: string;
         status: import("../enums/issue.enum").IssueStatus;
@@ -13,25 +13,30 @@ export declare class IssuesController {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    findAll(): Promise<{
-        uid: string;
-        title: string;
-        description: string;
-        status: import("../enums/issue.enum").IssueStatus;
-        priority: import("../enums/issue.enum").IssuePriority;
-        aiAnalysis: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-    }[]>;
-    findOne(uid: string): Promise<{
+    findAll(page?: string, limit?: string): Promise<{
+        items: {
+            uid: number;
+            title: string;
+            description: string;
+            status: import("../enums/issue.enum").IssueStatus;
+            priority: import("../enums/issue.enum").IssuePriority;
+            aiAnalysis: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+        }[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
+    findOne(uid: number): Promise<{
         discussions: {
-            uid: string;
-            issueUid: string;
+            uid: number;
+            issueUid: number;
             content: string;
             author: string;
             createdAt: Date;
         }[];
-        uid: string;
+        uid: number;
         title: string;
         description: string;
         status: import("../enums/issue.enum").IssueStatus;
@@ -40,8 +45,8 @@ export declare class IssuesController {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    update(uid: string, updateIssueDto: UpdateIssueDto): Promise<{
-        uid: string;
+    update(updateIssueDto: UpdateIssueDto): Promise<{
+        uid: number;
         title: string;
         description: string;
         status: import("../enums/issue.enum").IssueStatus;
@@ -50,8 +55,8 @@ export declare class IssuesController {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    analyze(uid: string): Promise<{
-        uid: string;
+    analyze(analyzeIssueDto: AnalyzeIssueDto): Promise<{
+        uid: number;
         title: string;
         description: string;
         status: import("../enums/issue.enum").IssueStatus;
@@ -60,7 +65,7 @@ export declare class IssuesController {
         createdAt: Date;
         updatedAt: Date;
     }>;
-    remove(uid: string): Promise<{
+    remove(deleteIssueDto: DeleteIssueDto): Promise<{
         deleted: boolean;
     }>;
 }

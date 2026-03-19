@@ -1,4 +1,4 @@
-export enum IssueStatus {
+ export enum IssueStatus {
   OPEN = 'OPEN',
   IN_PROGRESS = 'IN_PROGRESS',
   RESOLVED = 'RESOLVED',
@@ -13,7 +13,7 @@ export enum IssuePriority {
 }
 
 export interface Issue {
-  uid: string;
+  uid: number;
   title: string;
   description: string;
   status: IssueStatus;
@@ -23,9 +23,16 @@ export interface Issue {
   updatedAt: string;
 }
 
+export interface Paginated<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface Discussion {
-  uid: string;
-  issueUid: string;
+  uid: number;
+  issueUid: number;
   content: string;
   author: string;
   createdAt: string;
@@ -49,7 +56,7 @@ export interface UpdateIssueDto {
 }
 
 export interface CreateDiscussionDto {
-  issueUid: string;
+  issueUid: number;
   content: string;
   author: string;
 }

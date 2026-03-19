@@ -6,10 +6,10 @@ export declare const issues: import("drizzle-orm/pg-core").PgTableWithColumns<{
         uid: import("drizzle-orm/pg-core").PgColumn<{
             name: "uid";
             tableName: "issues";
-            dataType: "string";
-            columnType: "PgUUID";
-            data: string;
-            driverParam: string;
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
             notNull: true;
             hasDefault: true;
             isPrimaryKey: true;
@@ -17,7 +17,7 @@ export declare const issues: import("drizzle-orm/pg-core").PgTableWithColumns<{
             hasRuntimeDefault: false;
             enumValues: undefined;
             baseColumn: never;
-            identity: undefined;
+            identity: "always";
             generated: undefined;
         }, {}, {}>;
         title: import("drizzle-orm/pg-core").PgColumn<{

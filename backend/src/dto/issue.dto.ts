@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
 import { IssuePriority, IssueStatus } from '../enums/issue.enum';
 
 export class CreateIssueDto {
@@ -20,6 +20,11 @@ export class CreateIssueDto {
 }
 
 export class UpdateIssueDto {
+  @ApiProperty({ example: 123 })
+  @IsNumber()
+  @IsNotEmpty()
+  uid: number;
+
   @ApiPropertyOptional({ example: 'Bug in login page updated' })
   @IsString()
   @IsOptional()
@@ -39,4 +44,22 @@ export class UpdateIssueDto {
   @IsEnum(IssuePriority)
   @IsOptional()
   priority?: IssuePriority;
+}
+
+export class DeleteIssueDto {
+  @ApiProperty({ example: 123 })
+  @IsNumber()
+  @IsNotEmpty()
+  uid: number;
+}
+
+export class AnalyzeIssueDto {
+  @ApiProperty({ example: 123 })
+  @IsNumber()
+  @IsNotEmpty()
+  uid: number;
+
+  @ApiPropertyOptional({ example: true })
+  @IsOptional()
+  detailed?: boolean;
 }

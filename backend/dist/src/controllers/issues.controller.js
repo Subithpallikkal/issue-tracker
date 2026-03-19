@@ -25,20 +25,22 @@ let IssuesController = class IssuesController {
     create(createIssueDto) {
         return this.issuesService.create(createIssueDto);
     }
-    findAll() {
-        return this.issuesService.findAll();
+    findAll(page, limit) {
+        const p = page ? Number(page) : 1;
+        const l = limit ? Number(limit) : 10;
+        return this.issuesService.findAll(p, l);
     }
     findOne(uid) {
         return this.issuesService.findOne(uid);
     }
-    update(uid, updateIssueDto) {
-        return this.issuesService.update(uid, updateIssueDto);
+    update(updateIssueDto) {
+        return this.issuesService.update(updateIssueDto);
     }
-    analyze(uid) {
-        return this.issuesService.analyze(uid);
+    analyze(analyzeIssueDto) {
+        return this.issuesService.analyze(analyzeIssueDto);
     }
-    remove(uid) {
-        return this.issuesService.remove(uid);
+    remove(deleteIssueDto) {
+        return this.issuesService.remove(deleteIssueDto);
     }
 };
 exports.IssuesController = IssuesController;
@@ -52,43 +54,44 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)(),
+    (0, common_1.Get)('get_all'),
     (0, swagger_1.ApiOperation)({ summary: 'Get all issues' }),
+    __param(0, (0, common_1.Query)('page')),
+    __param(1, (0, common_1.Query)('limit')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "findAll", null);
 __decorate([
-    (0, common_1.Get)(':uid'),
+    (0, common_1.Get)('get_by_id/:uid'),
     (0, swagger_1.ApiOperation)({ summary: 'Get an issue by UID with discussions' }),
-    __param(0, (0, common_1.Param)('uid', common_1.ParseUUIDPipe)),
+    __param(0, (0, common_1.Param)('uid', common_1.ParseIntPipe)),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Patch)(':uid'),
+    (0, common_1.Patch)('update'),
     (0, swagger_1.ApiOperation)({ summary: 'Update an issue' }),
-    __param(0, (0, common_1.Param)('uid', common_1.ParseUUIDPipe)),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, issue_dto_1.UpdateIssueDto]),
+    __metadata("design:paramtypes", [issue_dto_1.UpdateIssueDto]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "update", null);
 __decorate([
-    (0, common_1.Post)(':uid/analyze'),
+    (0, common_1.Post)('analyze'),
     (0, swagger_1.ApiOperation)({ summary: 'Trigger AI analysis for an issue' }),
-    __param(0, (0, common_1.Param)('uid', common_1.ParseUUIDPipe)),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [issue_dto_1.AnalyzeIssueDto]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "analyze", null);
 __decorate([
-    (0, common_1.Delete)(':uid'),
+    (0, common_1.Delete)('delete'),
     (0, swagger_1.ApiOperation)({ summary: 'Delete an issue' }),
-    __param(0, (0, common_1.Param)('uid', common_1.ParseUUIDPipe)),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [issue_dto_1.DeleteIssueDto]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "remove", null);
 exports.IssuesController = IssuesController = __decorate([

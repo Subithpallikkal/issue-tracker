@@ -26,11 +26,43 @@ let DiscussionsService = class DiscussionsService {
             .returning();
         return discussion;
     }
-    async findByIssue(issueUid) {
-        return this.drizzleService.db
-            .select()
+    async findByIssue(issueUid, page = 1, limit = 10) {
+        const safeLimit = Math.min(Math.max(limit || 10, 1), 100);
+        const safePage = Math.max(page || 1, 1);
+        const offset = (safePage - 1) * safeLimit;
+        const [{ count }] = await this.drizzleService.db
+            .select({ count: (0, drizzle_orm_1.sql) `count(*)` })
             .from(schema_1.discussions)
             .where((0, drizzle_orm_1.eq)(schema_1.discussions.issueUid, issueUid));
+        const items = await this.drizzleService.db
+            .select()
+            .from(schema_1.discussions)
+            .where((0, drizzle_orm_1.eq)(schema_1.discussions.issueUid, issueUid))
+            .orderBy((0, drizzle_orm_1.asc)(schema_1.discussions.createdAt))
+            .limit(safeLimit)
+            .offset(offset);
+        return {
+            items,
+            total: Number(count) || 0,
+            page: safePage,
+            limit: safeLimit,
+        };
+    }
+    async update(updateDiscussionDto) {
+        const { uid, content } = updateDiscussionDto;
+        const [discussion] = await this.drizzleService.db
+            .update(schema_1.discussions)
+            .set({ content })
+            .where((0, drizzle_orm_1.eq)(schema_1.discussions.uid, uid))
+            .returning();
+        return discussion;
+    }
+    async remove(deleteDiscussionDto) {
+        const { uid } = deleteDiscussionDto;
+        await this.drizzleService.db
+            .delete(schema_1.discussions)
+            .where((0, drizzle_orm_1.eq)(schema_1.discussions.uid, uid));
+        return { deleted: true };
     }
 };
 exports.DiscussionsService = DiscussionsService;

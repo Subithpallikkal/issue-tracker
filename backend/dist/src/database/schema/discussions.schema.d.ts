@@ -5,10 +5,10 @@ export declare const discussions: import("drizzle-orm/pg-core").PgTableWithColum
         uid: import("drizzle-orm/pg-core").PgColumn<{
             name: "uid";
             tableName: "discussions";
-            dataType: "string";
-            columnType: "PgUUID";
-            data: string;
-            driverParam: string;
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
             notNull: true;
             hasDefault: true;
             isPrimaryKey: true;
@@ -16,16 +16,16 @@ export declare const discussions: import("drizzle-orm/pg-core").PgTableWithColum
             hasRuntimeDefault: false;
             enumValues: undefined;
             baseColumn: never;
-            identity: undefined;
+            identity: "always";
             generated: undefined;
         }, {}, {}>;
         issueUid: import("drizzle-orm/pg-core").PgColumn<{
             name: "issue_uid";
             tableName: "discussions";
-            dataType: "string";
-            columnType: "PgUUID";
-            data: string;
-            driverParam: string;
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
             notNull: true;
             hasDefault: false;
             isPrimaryKey: false;

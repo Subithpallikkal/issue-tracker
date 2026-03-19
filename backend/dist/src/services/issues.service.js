@@ -29,8 +29,25 @@ let IssuesService = class IssuesService {
             .returning();
         return issue;
     }
-    async findAll() {
-        return this.drizzleService.db.select().from(schema_1.issues);
+    async findAll(page = 1, limit = 10) {
+        const safeLimit = Math.min(Math.max(limit || 10, 1), 100);
+        const safePage = Math.max(page || 1, 1);
+        const offset = (safePage - 1) * safeLimit;
+        const [{ count }] = await this.drizzleService.db
+            .select({ count: (0, drizzle_orm_1.sql) `count(*)` })
+            .from(schema_1.issues);
+        const items = await this.drizzleService.db
+            .select()
+            .from(schema_1.issues)
+            .orderBy((0, drizzle_orm_1.desc)(schema_1.issues.createdAt))
+            .limit(safeLimit)
+            .offset(offset);
+        return {
+            items,
+            total: Number(count) || 0,
+            page: safePage,
+            limit: safeLimit,
+        };
     }
     async findOne(uid) {
         const [issue] = await this.drizzleService.db
@@ -46,10 +63,11 @@ let IssuesService = class IssuesService {
             .where((0, drizzle_orm_1.eq)(schema_1.discussions.issueUid, uid));
         return { ...issue, discussions: issueDiscussions };
     }
-    async update(uid, updateIssueDto) {
+    async update(updateIssueDto) {
+        const { uid, ...updateData } = updateIssueDto;
         const [issue] = await this.drizzleService.db
             .update(schema_1.issues)
-            .set({ ...updateIssueDto, updatedAt: new Date() })
+            .set({ ...updateData, updatedAt: new Date() })
             .where((0, drizzle_orm_1.eq)(schema_1.issues.uid, uid))
             .returning();
         if (!issue) {
@@ -57,10 +75,11 @@ let IssuesService = class IssuesService {
         }
         return issue;
     }
-    async analyze(uid) {
+    async analyze(analyzeIssueDto) {
+        const { uid, detailed } = analyzeIssueDto;
         const issueWithDiscussions = await this.findOne(uid);
         const discussionTexts = issueWithDiscussions.discussions.map(d => d.content);
-        const analysis = await this.aiService.analyzeIssue(issueWithDiscussions.title, issueWithDiscussions.description, discussionTexts);
+        const analysis = await this.aiService.analyzeIssue(issueWithDiscussions.title, issueWithDiscussions.description, discussionTexts, detailed);
         const [updatedIssue] = await this.drizzleService.db
             .update(schema_1.issues)
             .set({ aiAnalysis: analysis, updatedAt: new Date() })
@@ -68,7 +87,8 @@ let IssuesService = class IssuesService {
             .returning();
         return updatedIssue;
     }
-    async remove(uid) {
+    async remove(deleteIssueDto) {
+        const { uid } = deleteIssueDto;
         const [issue] = await this.drizzleService.db
             .delete(schema_1.issues)
             .where((0, drizzle_orm_1.eq)(schema_1.issues.uid, uid))

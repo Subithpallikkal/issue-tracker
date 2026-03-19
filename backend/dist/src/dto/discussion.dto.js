@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateDiscussionDto = void 0;
+exports.DeleteDiscussionDto = exports.UpdateDiscussionDto = exports.CreateDiscussionDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateDiscussionDto {
@@ -19,10 +19,10 @@ class CreateDiscussionDto {
 }
 exports.CreateDiscussionDto = CreateDiscussionDto;
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: '550e8400-e29b-41d4-a716-446655440000' }),
-    (0, class_validator_1.IsUUID)(),
+    (0, swagger_1.ApiProperty)({ example: 123 }),
+    (0, class_validator_1.IsNumber)(),
     (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], CreateDiscussionDto.prototype, "issueUid", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 'I am working on a fix for this.' }),
@@ -36,4 +36,31 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateDiscussionDto.prototype, "author", void 0);
+class UpdateDiscussionDto {
+    uid;
+    content;
+}
+exports.UpdateDiscussionDto = UpdateDiscussionDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 123 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateDiscussionDto.prototype, "uid", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 'Updated comment content.' }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], UpdateDiscussionDto.prototype, "content", void 0);
+class DeleteDiscussionDto {
+    uid;
+}
+exports.DeleteDiscussionDto = DeleteDiscussionDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 123 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], DeleteDiscussionDto.prototype, "uid", void 0);
 //# sourceMappingURL=discussion.dto.js.map

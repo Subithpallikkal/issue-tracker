@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DrizzleService } from '../database/drizzle.service';
 import { issues, discussions } from '../database/schema';
-import { eq } from 'drizzle-orm';
-import { CreateIssueDto, UpdateIssueDto } from '../dto/issue.dto';
+import { desc, eq, sql } from 'drizzle-orm';
+import { CreateIssueDto, UpdateIssueDto, DeleteIssueDto, AnalyzeIssueDto } from '../dto/issue.dto';
 import { AiService } from './ai.service';
 
 @Injectable()
@@ -20,11 +20,31 @@ export class IssuesService {
     return issue;
   }
 
-  async findAll() {
-    return this.drizzleService.db.select().from(issues);
+  async findAll(page = 1, limit = 10) {
+    const safeLimit = Math.min(Math.max(limit || 10, 1), 100);
+    const safePage = Math.max(page || 1, 1);
+    const offset = (safePage - 1) * safeLimit;
+
+    const [{ count }] = await this.drizzleService.db
+      .select({ count: sql<number>`count(*)` })
+      .from(issues);
+
+    const items = await this.drizzleService.db
+      .select()
+      .from(issues)
+      .orderBy(desc(issues.createdAt))
+      .limit(safeLimit)
+      .offset(offset);
+
+    return {
+      items,
+      total: Number(count) || 0,
+      page: safePage,
+      limit: safeLimit,
+    };
   }
 
-  async findOne(uid: string) {
+  async findOne(uid: number) {
     const [issue] = await this.drizzleService.db
       .select()
       .from(issues)
@@ -42,10 +62,11 @@ export class IssuesService {
     return { ...issue, discussions: issueDiscussions };
   }
 
-  async update(uid: string, updateIssueDto: UpdateIssueDto) {
+  async update(updateIssueDto: UpdateIssueDto) {
+    const { uid, ...updateData } = updateIssueDto;
     const [issue] = await this.drizzleService.db
       .update(issues)
-      .set({ ...updateIssueDto, updatedAt: new Date() })
+      .set({ ...updateData, updatedAt: new Date() })
       .where(eq(issues.uid, uid))
       .returning();
 
@@ -56,7 +77,8 @@ export class IssuesService {
     return issue;
   }
 
-  async analyze(uid: string) {
+  async analyze(analyzeIssueDto: AnalyzeIssueDto) {
+    const { uid, detailed } = analyzeIssueDto;
     const issueWithDiscussions = await this.findOne(uid);
     const discussionTexts = issueWithDiscussions.discussions.map(d => d.content);
     
@@ -64,6 +86,7 @@ export class IssuesService {
       issueWithDiscussions.title,
       issueWithDiscussions.description,
       discussionTexts,
+      detailed,
     );
 
     const [updatedIssue] = await this.drizzleService.db
@@ -75,7 +98,8 @@ export class IssuesService {
     return updatedIssue;
   }
 
-  async remove(uid: string) {
+  async remove(deleteIssueDto: DeleteIssueDto) {
+    const { uid } = deleteIssueDto;
     const [issue] = await this.drizzleService.db
       .delete(issues)
       .where(eq(issues.uid, uid))

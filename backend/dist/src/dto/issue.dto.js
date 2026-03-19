@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateIssueDto = exports.CreateIssueDto = void 0;
+exports.AnalyzeIssueDto = exports.DeleteIssueDto = exports.UpdateIssueDto = exports.CreateIssueDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const issue_enum_1 = require("../enums/issue.enum");
@@ -38,12 +38,19 @@ __decorate([
     __metadata("design:type", String)
 ], CreateIssueDto.prototype, "priority", void 0);
 class UpdateIssueDto {
+    uid;
     title;
     description;
     status;
     priority;
 }
 exports.UpdateIssueDto = UpdateIssueDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 123 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], UpdateIssueDto.prototype, "uid", void 0);
 __decorate([
     (0, swagger_1.ApiPropertyOptional)({ example: 'Bug in login page updated' }),
     (0, class_validator_1.IsString)(),
@@ -68,4 +75,30 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateIssueDto.prototype, "priority", void 0);
+class DeleteIssueDto {
+    uid;
+}
+exports.DeleteIssueDto = DeleteIssueDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 123 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], DeleteIssueDto.prototype, "uid", void 0);
+class AnalyzeIssueDto {
+    uid;
+    detailed;
+}
+exports.AnalyzeIssueDto = AnalyzeIssueDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: 123 }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", Number)
+], AnalyzeIssueDto.prototype, "uid", void 0);
+__decorate([
+    (0, swagger_1.ApiPropertyOptional)({ example: true }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Boolean)
+], AnalyzeIssueDto.prototype, "detailed", void 0);
 //# sourceMappingURL=issue.dto.js.map

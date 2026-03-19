@@ -5,8 +5,16 @@ export declare class CreateIssueDto {
     priority?: IssuePriority;
 }
 export declare class UpdateIssueDto {
+    uid: number;
     title?: string;
     description?: string;
     status?: IssueStatus;
     priority?: IssuePriority;
+}
+export declare class DeleteIssueDto {
+    uid: number;
+}
+export declare class AnalyzeIssueDto {
+    uid: number;
+    detailed?: boolean;
 }

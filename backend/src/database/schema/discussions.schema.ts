@@ -1,9 +1,9 @@
-import { pgTable, text, varchar, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, timestamp, integer } from 'drizzle-orm/pg-core';
 import { issues } from './issues.schema';
 
 export const discussions = pgTable('discussions', {
-  uid: uuid('uid').defaultRandom().primaryKey(),
-  issueUid: uuid('issue_uid')
+  uid: integer('uid').primaryKey().generatedAlwaysAsIdentity(),
+  issueUid: integer('issue_uid')
     .references(() => issues.uid, { onDelete: 'cascade' })
     .notNull(),
   content: text('content').notNull(),

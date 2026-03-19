@@ -1,240 +1,459 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
-import { IssueWithDiscussions, IssueStatus, IssuePriority } from '@/types/issue';
-import { api } from '@/services/api';
-import Button from '@/components/common/Button';
-import Card from '@/components/common/Card';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { api } from '@/lib/api';
+import { AddDiscussion, AIAnalysis, DiscussionList, IssueForm } from '@/components';
+import type { Discussion, IssueWithDiscussions } from '@/types/issue';
+import { IssuePriority } from '@/types/issue';
+import { formatDate } from '@/lib/utils';
 
-export default function IssueDetail({ params }: { params: Promise<{ id: string }> }) {
+export default function IssuePage() {
+  const params = useParams<{ id?: string }>();
   const router = useRouter();
-  const { id: issueUid } = use(params);
+  const rawId = params?.id;
+  const isCreateMode = rawId === 'new';
+  const uid = useMemo(() => {
+    if (!rawId || isCreateMode) return NaN;
+    const n = Number(rawId);
+    return Number.isFinite(n) ? n : NaN;
+  }, [isCreateMode, rawId]);
 
   const [issue, setIssue] = useState<IssueWithDiscussions | null>(null);
+  const [discussions, setDiscussions] = useState<Discussion[]>([]);
+  const [discPage, setDiscPage] = useState(1);
+  const [discLimit] = useState(10);
+  const [discTotal, setDiscTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [comment, setComment] = useState('');
-  const [author, setAuthor] = useState('');
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingUid, setEditingUid] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState('');
+
+  const [isEditingIssue, setIsEditingIssue] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editPriority, setEditPriority] = useState<IssuePriority | null>(null);
+  const [isUpdatingIssue, setIsUpdatingIssue] = useState(false);
+
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [aiDetailed, setAiDetailed] = useState<string | null>(null);
+  const [isAnalyzingSummary, setIsAnalyzingSummary] = useState(false);
+  const [isAnalyzingDetailed, setIsAnalyzingDetailed] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchIssue();
-  }, [issueUid]);
-
-  const fetchIssue = async () => {
-    try {
-      setIsLoading(true);
-      const data = await api.getIssue(issueUid);
-      setIssue(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
+    if (isCreateMode) {
+      // In create mode, we don't fetch an existing issue.
       setIsLoading(false);
+      setIssue(null);
+      setDiscussions([]);
+      setDiscTotal(0);
+      setEditTitle('');
+      setEditDescription('');
+      setEditPriority(IssuePriority.MEDIUM);
+      setIsEditingIssue(true);
+      return;
     }
-  };
 
-  const handleStatusChange = async (newStatus: IssueStatus) => {
-    if (!issue) return;
-    try {
-      await api.updateIssue(issueUid, { status: newStatus });
-      setIssue({ ...issue, status: newStatus });
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    const fetchData = async () => {
+      if (!Number.isFinite(uid)) {
+        setError('Invalid issue id.');
+        setIsLoading(false);
+        return;
+      }
 
-  const handleAnalyze = async () => {
-    try {
-      setIsAnalyzing(true);
-      const updatedIssue = await api.analyzeIssue(issueUid);
-      setIssue(prev => prev ? { ...prev, aiAnalysis: updatedIssue.aiAnalysis } : null);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+      setIsLoading(true);
+      setError(null);
+      try {
+        const res = await api.getIssue(uid);
+        setIssue(res);
+        // Discussions are paginated via the discussions endpoint now.
+        const disc = await api.getDiscussions(uid, { page: discPage, limit: discLimit });
+        setDiscussions(disc.items || []);
+        setDiscTotal(disc.total || 0);
 
-  const handleAddComment = async (e: React.FormEvent) => {
+        // Initialize edit fields when issue loads
+        if (!isEditingIssue) {
+          setEditTitle(res.title);
+          setEditDescription(res.description);
+          setEditPriority(res.priority);
+        }
+      } catch (e: any) {
+        setError(e?.message || 'Failed to load issue.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void fetchData();
+  }, [discLimit, discPage, isCreateMode, uid]);
+
+  const onAdd = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!comment || !author) return;
+    if (!Number.isFinite(uid)) return;
 
+    const trimmed = comment.trim();
+    if (!trimmed) return;
+
+    void (async () => {
+      setIsSubmitting(true);
+      setError(null);
+      try {
+        const created = await api.createDiscussion({
+          issueUid: uid,
+          content: trimmed,
+          // The Discussion UI treats author case-insensitively as "you".
+          author: 'You',
+        });
+        setDiscussions((prev) => [...prev, created]);
+        setComment('');
+      } catch (e: any) {
+        setError(e?.message || 'Failed to add discussion.');
+      } finally {
+        setIsSubmitting(false);
+      }
+    })();
+  };
+
+  const runSummaryAnalysis = () => {
+    if (!Number.isFinite(uid)) return;
+
+    setAiError(null);
+    setIsAnalyzingDetailed(false);
+    setAiDetailed(null);
+    setIsAnalyzingSummary(true);
+
+    void (async () => {
+      try {
+        const res = await api.analyzeIssue(uid, false);
+        setAiSummary(res.aiAnalysis ?? null);
+      } catch (e: any) {
+        setAiSummary(null);
+        setAiError(e?.message || 'Failed to analyze issue.');
+      } finally {
+        setIsAnalyzingSummary(false);
+      }
+    })();
+  };
+
+  const runDetailedAnalysis = () => {
+    if (!Number.isFinite(uid)) return;
+
+    setAiError(null);
+    setIsAnalyzingDetailed(true);
+
+    void (async () => {
+      try {
+        const res = await api.analyzeIssue(uid, true);
+        setAiDetailed(res.aiAnalysis ?? null);
+      } catch (e: any) {
+        setAiDetailed(null);
+        setAiError(e?.message || 'Failed to run detailed analysis.');
+      } finally {
+        setIsAnalyzingDetailed(false);
+      }
+    })();
+  };
+
+  const handleDeleteDiscussion = async (discussionUid: number) => {
     try {
-      setIsSubmittingComment(true);
-      const newComment = await api.createDiscussion({
-        issueUid,
-        content: comment,
-        author,
-      });
-      setIssue(prev => prev ? {
-        ...prev,
-        discussions: [...prev.discussions, newComment]
-      } : null);
-      setComment('');
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsSubmittingComment(false);
+      await api.deleteDiscussion(discussionUid);
+      setDiscussions((prev) => prev.filter((d) => d.uid !== discussionUid));
+      setDiscTotal((t) => Math.max(0, t - 1));
+    } catch (e: any) {
+      setError(e?.message || 'Failed to delete discussion.');
     }
   };
 
-  if (isLoading) return <div className="flex justify-center py-20 animate-pulse text-gray-400">Loading issue details...</div>;
-  if (!issue) return <div className="text-center py-20">Issue not found.</div>;
+  const handleEditDiscussion = async (discussionUid: number, content: string) => {
+    try {
+      const updated = await api.updateDiscussion(discussionUid, content);
+      setDiscussions((prev) =>
+        prev.map((d) => (d.uid === discussionUid ? { ...d, content: updated.content } : d)),
+      );
+    } catch (e: any) {
+      setError(e?.message || 'Failed to update discussion.');
+    }
+  };
+
+  const handleStartEditIssue = () => {
+    if (!issue) return;
+    setEditTitle(issue.title);
+    setEditDescription(issue.description);
+    setEditPriority(issue.priority);
+    setIsEditingIssue(true);
+  };
+
+  const handleUpdateIssue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editPriority) return;
+
+    setIsUpdatingIssue(true);
+    setError(null);
+    try {
+      if (isCreateMode) {
+        const created = await api.createIssue({
+          title: editTitle,
+          description: editDescription,
+          priority: editPriority,
+        });
+        router.push(`/issues/${created.uid}`);
+        return;
+      }
+
+      if (!Number.isFinite(uid) || !issue) return;
+
+      const updated = await api.updateIssue(uid, {
+        title: editTitle,
+        description: editDescription,
+        priority: editPriority,
+      });
+      setIssue((prev) =>
+        prev ? { ...prev, ...updated, discussions: prev.discussions } : { ...(updated as any), discussions: [] },
+      );
+      setIsEditingIssue(false);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to update issue.');
+    } finally {
+      setIsUpdatingIssue(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-20">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10 text-text-muted">
+        <div className="text-white font-bold text-lg mb-3">Error</div>
+        <div>{error}</div>
+      </div>
+    );
+  }
+
+  if (!isCreateMode && !issue) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10 text-text-muted">
+        <div className="text-white font-bold text-lg mb-3">Issue not found</div>
+      </div>
+    );
+  }
+
+  const safeIssue = issue as IssueWithDiscussions | null;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <button 
-            onClick={() => router.back()}
-            className="text-sm text-blue-600 hover:text-blue-800 flex items-center mb-4"
-          >
-            ← Back to list
-          </button>
-          <h1 className="text-4xl font-bold text-gray-900">{issue.title}</h1>
-          <div className="flex gap-4 items-center mt-2">
-            <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-              issue.priority === IssuePriority.URGENT ? 'bg-red-100 text-red-800' :
-              issue.priority === IssuePriority.HIGH ? 'bg-orange-100 text-orange-800' :
-              'bg-blue-100 text-blue-800'
-            }`}>
-              {issue.priority} Priority
-            </span>
-            <span className="text-gray-400 text-sm">
-              Opened on {new Date(issue.createdAt).toLocaleDateString()}
-            </span>
-          </div>
+    <div className="max-w-4xl mx-auto space-y-8 px-4">
+      <div className="space-y-2 pt-8">
+        <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-1">
+          <Link href="/" className="hover:text-white transition-colors">
+            Home
+          </Link>
+          <span>›</span>
+          <Link href="/issues" className="hover:text-white transition-colors">
+            Issues
+          </Link>
+          <span>›</span>
+          {isCreateMode ? (
+            <span className="text-white">New issue</span>
+          ) : safeIssue ? (
+            <span className="text-white">Issue #{safeIssue.uid}</span>
+          ) : null}
         </div>
-        <div className="flex flex-col gap-2">
-          <select 
-            value={issue.status}
-            onChange={(e) => handleStatusChange(e.target.value as IssueStatus)}
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border font-medium"
-          >
-            {Object.values(IssueStatus).map(status => (
-              <option key={status} value={status}>{status.replace('_', ' ')}</option>
-            ))}
-          </select>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold mb-4 border-b pb-2">Description</h2>
-            <p className="text-gray-700 whitespace-pre-wrap">{issue.description}</p>
-          </Card>
+        <h1 className="text-3xl font-bold text-white tracking-tight">
+          {isCreateMode ? 'Report New Issue' : safeIssue?.title}
+        </h1>
 
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-               Discussions
-              <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-sm font-normal">
-                {issue.discussions.length}
-              </span>
-            </h2>
-            
-            <div className="space-y-4">
-              {issue.discussions.map((d) => (
-                <div key={d.uid} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-semibold text-gray-900">{d.author}</span>
-                    <span className="text-gray-400 text-xs">
-                      {new Date(d.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                  <p className="text-gray-700">{d.content}</p>
-                </div>
-              ))}
+        {!isEditingIssue && !isCreateMode && safeIssue ? (
+          <>
+            <div className="flex items-start justify-between gap-4">
+              <p className="text-text-muted text-sm leading-relaxed">{safeIssue.description}</p>
+
+              <div className="shrink-0 flex flex-col items-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleStartEditIssue}
+                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-[10px] font-bold hover:text-white hover:bg-white/5 transition-all"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  onClick={runSummaryAnalysis}
+                  disabled={isAnalyzingSummary || isAnalyzingDetailed}
+                  className="bg-accent hover:bg-accent-hover text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg shadow-accent/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={isAnalyzingSummary ? 'animate-spin' : ''}
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M12 2l1.2 3.6L17 7l-3.8 1.4L12 12l-1.2-3.6L7 7l3.8-1.4L12 2Z"
+                        fill="currentColor"
+                        opacity="0.95"
+                      />
+                      <path
+                        d="M5 13l.8 2.4L8 16l-2.2.6L5 19l-.8-2.4L2 16l2.2-.6L5 13Z"
+                        fill="currentColor"
+                        opacity="0.8"
+                      />
+                      <path
+                        d="M18 12l.9 2.7L22 15.6l-3.1.9L18 19l-.9-2.5-3.1-.9 3.1-.9.9-2.7Z"
+                        fill="currentColor"
+                        opacity="0.8"
+                      />
+                    </svg>
+                    {isAnalyzingSummary ? 'Analyzing...' : 'AI Analyze'}
+                  </span>
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleAddComment} className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4 mt-8">
-              <h3 className="font-semibold text-gray-900">Add an update</h3>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Your name"
-                  required
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                />
-                <textarea
-                  placeholder="What's the latest update?"
-                  required
-                  rows={3}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
-                />
-                <Button type="submit" isLoading={isSubmittingComment} className="w-full">
-                  Post Update
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-xl">✨</span>
-              <h2 className="text-lg font-bold text-blue-900">Gemini AI Analysis</h2>
-            </div>
-            
-            {issue.aiAnalysis ? (
-              <div className="space-y-4">
-                <div className="prose prose-sm text-blue-800 whitespace-pre-wrap">
-                  {issue.aiAnalysis}
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleAnalyze} 
-                  isLoading={isAnalyzing}
-                  className="text-blue-600 hover:text-blue-800 p-0 h-auto font-semibold"
-                >
-                  Refresh Analysis
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4 text-center">
-                <p className="text-sm text-blue-700">
-                  Generate an automated analysis of this issue using Google's Gemini AI.
-                </p>
-                <Button 
-                  onClick={handleAnalyze} 
-                  isLoading={isAnalyzing}
-                  className="w-full bg-blue-600 hover:bg-blue-700"
-                >
-                  Generate Insights
-                </Button>
+            {safeIssue && (
+              <div className="flex flex-wrap items-center gap-3 pt-4">
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest bg-white/5 text-text-muted border border-border">
+                  {safeIssue.priority}
+                </span>
+                <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest bg-white/5 text-text-muted border border-border">
+                  {safeIssue.status}
+                </span>
+                <span className="text-[10px] font-bold text-text-muted">
+                  Created {formatDate(safeIssue.createdAt)}
+                </span>
+                {safeIssue.updatedAt && (
+                  <span className="text-[10px] font-bold text-text-muted">
+                    Updated {formatDate(safeIssue.updatedAt)}
+                  </span>
+                )}
               </div>
             )}
-          </Card>
+          </>
+        ) : (
+          <div className="pt-4 space-y-4">
+            <IssueForm
+              title={editTitle}
+              setTitle={setEditTitle}
+              description={editDescription}
+              setDescription={setEditDescription}
+              priority={editPriority ?? (issue ? issue.priority : IssuePriority.MEDIUM)}
+              setPriority={(p) => setEditPriority(p)}
+              onSubmit={handleUpdateIssue}
+              isSubmitting={isUpdatingIssue}
+              onCancel={() => {
+                if (isCreateMode) {
+                  router.push('/issues');
+                } else {
+                  setIsEditingIssue(false);
+                }
+              }}
+            />
+          </div>
+        )}
 
-          <Card className="p-4 space-y-4 text-sm">
-            <h3 className="font-semibold text-gray-900 border-b pb-2">Issue Details</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-gray-500">Status:</span>
-                <span className="font-medium text-gray-900">{issue.status.replace('_', ' ')}</span>
+        {(isAnalyzingSummary || aiSummary) && (
+          <div className="pt-6">
+            {aiError && (
+              <div className="mb-4 text-sm font-bold text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3">
+                {aiError}
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Priority:</span>
-                <span className="font-medium text-gray-900">{issue.priority}</span>
+            )}
+
+            <AIAnalysis
+              analysis={aiSummary ?? undefined}
+              isAnalyzing={isAnalyzingSummary}
+              variant="summary"
+            />
+
+            {aiSummary && (
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={runDetailedAnalysis}
+                  disabled={isAnalyzingDetailed || isAnalyzingSummary}
+                  className="bg-sidebar border border-border text-text-muted px-4 py-2 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isAnalyzingDetailed ? 'Analyzing detailed...' : 'Detailed analyze'}
+                </button>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">Created:</span>
-                <span className="font-medium text-gray-900">{new Date(issue.createdAt).toLocaleDateString()}</span>
+            )}
+
+            {(isAnalyzingDetailed || aiDetailed) && (
+              <div className="mt-6">
+                <AIAnalysis
+                  analysis={aiDetailed ?? undefined}
+                  isAnalyzing={isAnalyzingDetailed}
+                  variant="detailed"
+                />
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500">ID:</span>
-                <span className="font-mono text-gray-400">#ISS-{issue.uid.substring(0, 8).toUpperCase()}</span>
-              </div>
-            </div>
-          </Card>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Discussions */}
+      <div className="border border-border/50 rounded-3xl bg-sidebar/20 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-white font-bold">Discussions</div>
+          <div className="text-[10px] font-bold text-text-muted">{discTotal} comments</div>
         </div>
+
+        {discussions.length === 0 ? (
+          <div className="text-text-muted text-sm py-10">No discussions yet.</div>
+        ) : (
+          <DiscussionList
+            discussions={discussions}
+            onDelete={handleDeleteDiscussion}
+            onEdit={handleEditDiscussion}
+            editingUid={editingUid}
+            editContent={editContent}
+            setEditContent={setEditContent}
+            setEditingUid={setEditingUid}
+          />
+        )}
+
+        {/* Discussion pagination */}
+        {discTotal > discLimit && (
+          <div className="pt-6 flex items-center justify-between">
+            <div className="text-[10px] font-bold text-text-muted">
+              Page {discPage} of {Math.max(1, Math.ceil(discTotal / discLimit))}
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={discPage <= 1}
+                onClick={() => setDiscPage((p) => Math.max(1, p - 1))}
+                className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Prev
+              </button>
+              <button
+                type="button"
+                disabled={discPage * discLimit >= discTotal}
+                onClick={() => setDiscPage((p) => p + 1)}
+                className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        <AddDiscussion comment={comment} setComment={setComment} onAdd={onAdd} isSubmitting={isSubmitting} />
       </div>
     </div>
   );
