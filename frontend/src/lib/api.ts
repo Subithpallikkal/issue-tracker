@@ -117,6 +117,8 @@ export const api = {
   deleteDiscussion: async (uid: number): Promise<void> => {
     const response = await fetch(`${API_URL}/discussions/delete`, {
       method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid }),
     });
     if (!response.ok) throw new Error('Failed to delete discussion');
   },

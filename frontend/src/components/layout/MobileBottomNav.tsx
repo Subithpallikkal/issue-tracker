@@ -15,7 +15,7 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label="Bottom navigation"
-      className="md:hidden h-14 border-t border-border bg-background/80 backdrop-blur-md z-40"
+      className="md:hidden fixed left-0 right-0 bottom-0 h-14 border-t border-border bg-background/80 backdrop-blur-md z-50 pb-[env(safe-area-inset-bottom)]"
     >
       <div className="h-full flex items-center justify-around px-2">
         {navItems.map((item) => {

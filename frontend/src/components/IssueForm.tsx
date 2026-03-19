@@ -27,10 +27,11 @@ const IssueForm: React.FC<IssueFormProps> = ({
   const showStatus = status !== undefined && typeof setStatus === 'function';
 
   return (
-    <div className="bg-sidebar border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-      <div className="bg-accent h-1.5 w-full"></div>
-      <form onSubmit={onSubmit} className="p-8 space-y-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+    <div className="glass-card rounded-3xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+      <div className="glass-card-inner rounded-3xl overflow-hidden">
+        <div className="bg-accent h-1.5 w-full"></div>
+        <form onSubmit={onSubmit} className="p-8 space-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="space-y-3 col-span-2 md:col-span-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Issue Title</label>
             <input
@@ -83,26 +84,27 @@ const IssueForm: React.FC<IssueFormProps> = ({
               onChange={e => setDescription(e.target.value)}
             />
           </div>
-        </div>
+          </div>
 
-        <div className="flex justify-end gap-4 pt-8 border-t border-border">
-          <Button 
-            type="button" 
-            variant="secondary" 
-            onClick={onCancel} 
-            className="px-8 py-3 rounded-xl border border-border text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest"
-          >
-            Discard
-          </Button>
-          <Button 
-            type="submit" 
-            isLoading={isSubmitting} 
-            className="px-12 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white font-black shadow-lg shadow-accent/20 transition-all text-xs uppercase tracking-widest"
-          >
-            Save & Submit
-          </Button>
-        </div>
-      </form>
+          <div className="flex justify-end gap-4 pt-8 border-t border-border">
+            <Button 
+              type="button" 
+              variant="secondary" 
+              onClick={onCancel} 
+              className="px-8 py-3 rounded-xl border border-border text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest"
+            >
+              Discard
+            </Button>
+            <Button 
+              type="submit" 
+              isLoading={isSubmitting} 
+              className="px-12 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white font-black shadow-lg shadow-accent/20 transition-all text-xs uppercase tracking-widest"
+            >
+              Save & Submit
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

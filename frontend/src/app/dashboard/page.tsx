@@ -41,15 +41,8 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Breadcrumbs & Header */}
+      {/* Header */}
       <div className="space-y-1 px-4 md:px-0">
-        <div className="flex items-center gap-2 text-xs font-medium text-text-muted">
-          <Link href="/" className="hover:text-white transition-colors">
-            Home
-          </Link>
-          <span>›</span>
-          <span className="text-white">Dashboard</span>
-        </div>
         <div className="flex items-center justify-between pt-2">
           <h1 className="text-3xl font-bold text-white tracking-tight">Dashboard</h1>
           <Link
@@ -63,33 +56,42 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-0">
-        <div className="bg-sidebar/20 border border-border rounded-3xl p-4 space-y-2">
-          <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Total Issues</div>
-          <div className="text-white font-black text-2xl">{isLoading ? '...' : total}</div>
-        </div>
-
-        <div className="bg-sidebar/20 border border-border rounded-3xl p-4 space-y-2">
-          <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Open</div>
-          <div className="text-white font-black text-2xl">{isLoading ? '...' : summary.byStatus[IssueStatus.OPEN]}</div>
-        </div>
-
-        <div className="bg-sidebar/20 border border-border rounded-3xl p-4 space-y-2">
-          <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">In Progress</div>
-          <div className="text-white font-black text-2xl">
-            {isLoading ? '...' : summary.byStatus[IssueStatus.IN_PROGRESS]}
+        <div className="rounded-3xl p-px bg-linear-to-br from-white/7 via-white/3 to-accent/7 shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
+          <div className="rounded-3xl p-4 space-y-2 bg-linear-to-br from-white/3 via-white/1 to-accent/3 backdrop-blur-xl border border-white/5">
+            <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Total Issues</div>
+            <div className="text-white font-black text-2xl">{isLoading ? '...' : total}</div>
           </div>
         </div>
 
-        <div className="bg-sidebar/20 border border-border rounded-3xl p-4 space-y-2">
-          <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Urgent</div>
-          <div className="text-white font-black text-2xl">
-            {isLoading ? '...' : summary.byPriority[IssuePriority.URGENT]}
+        <div className="rounded-3xl p-px bg-linear-to-br from-cyan-200/9 via-white/3 to-accent/7 shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
+          <div className="rounded-3xl p-4 space-y-2 bg-linear-to-br from-cyan-300/3 via-white/1 to-accent/3 backdrop-blur-xl border border-white/5">
+            <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Open</div>
+            <div className="text-white font-black text-2xl">{isLoading ? '...' : summary.byStatus[IssueStatus.OPEN]}</div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl p-px bg-linear-to-br from-amber-200/9 via-white/3 to-accent/7 shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
+          <div className="rounded-3xl p-4 space-y-2 bg-linear-to-br from-amber-200/3 via-white/1 to-accent/3 backdrop-blur-xl border border-white/5">
+            <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">In Progress</div>
+            <div className="text-white font-black text-2xl">
+              {isLoading ? '...' : summary.byStatus[IssueStatus.IN_PROGRESS]}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl p-px bg-linear-to-br from-rose-300/9 via-white/3 to-accent/9 shadow-[0_10px_30px_rgba(0,0,0,0.14)]">
+          <div className="rounded-3xl p-4 space-y-2 bg-linear-to-br from-rose-300/3 via-white/1 to-accent/3 backdrop-blur-xl border border-white/5">
+            <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Urgent</div>
+            <div className="text-white font-black text-2xl">
+              {isLoading ? '...' : summary.byPriority[IssuePriority.URGENT]}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Recent Issues */}
-      <div className="border border-border/50 rounded-3xl bg-sidebar/20 p-6 space-y-4 mx-4 md:mx-0">
+      <div className="rounded-3xl p-px bg-linear-to-br from-white/7 via-white/3 to-accent/7 mx-4 md:mx-0 shadow-[0_16px_40px_rgba(0,0,0,0.14)]">
+        <div className="rounded-3xl bg-linear-to-br from-white/3 via-white/1 to-accent/3 border border-white/5 backdrop-blur-xl p-6 space-y-4">
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="text-white font-bold">Recent Issues</div>
@@ -119,6 +121,7 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

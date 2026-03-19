@@ -128,7 +128,7 @@ function IssuesPageInner() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Breadcrumbs & Header */}
-      <div className="space-y-1 px-4 md:px-0">
+      <div className="space-y-1 px-1 sm:px-2 md:px-0">
         <div className="flex items-center gap-2 text-xs font-medium text-text-muted">
           <Link href="/" className="hover:text-white transition-colors">
             Home
@@ -136,16 +136,16 @@ function IssuesPageInner() {
           <span>›</span>
           <span className="text-white">Issues</span>
         </div>
-        <div className="flex items-center justify-between pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-2 gap-3">
           <h1 className="text-3xl font-bold text-white tracking-tight">Issues</h1>
-          <div className="flex items-center gap-2 relative">
+          <div className="grid grid-cols-3 sm:flex items-center gap-2 relative w-full sm:w-auto">
             <button
               type="button"
               onClick={() => {
                 setFiltersOpen((v) => !v);
                 setSortOpen(false);
               }}
-              className="bg-sidebar border border-border px-3 py-1.5 rounded-lg text-xs font-bold text-white hover:bg-white/5 flex items-center gap-2 transition-all"
+              className="bg-sidebar border border-border px-3 py-2 rounded-lg text-xs font-bold text-white hover:bg-white/5 flex items-center justify-center gap-2 transition-all"
             >
               <span>≡</span> Filters
             </button>
@@ -155,17 +155,18 @@ function IssuesPageInner() {
                 setSortOpen((v) => !v);
                 setFiltersOpen(false);
               }}
-              className="bg-sidebar border border-border px-3 py-1.5 rounded-lg text-xs font-bold text-white hover:bg-white/5 flex items-center gap-2 transition-all"
+              className="bg-sidebar border border-border px-3 py-2 rounded-lg text-xs font-bold text-white hover:bg-white/5 flex items-center justify-center gap-2 transition-all"
             >
               <span>⇵</span> Sort
             </button>
             <button
               type="button"
               onClick={openCreateModal}
-              className="bg-accent hover:bg-accent-hover text-white px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-accent/20 transition-all active:scale-95"
+              className="bg-accent hover:bg-accent-hover text-white px-3 sm:px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-accent/20 transition-all active:scale-95"
             >
               <span className="text-lg">+</span>
-              New Issue
+              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">New Issue</span>
             </button>
 
             {(filtersOpen || sortOpen) && (
@@ -181,8 +182,9 @@ function IssuesPageInner() {
             )}
 
             {filtersOpen && (
-              <div className="absolute right-0 top-10 z-20 w-80 bg-sidebar border border-border rounded-2xl shadow-2xl p-4 space-y-4">
-                <div className="space-y-2">
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-12 z-20 w-full sm:w-80 glass-card rounded-2xl shadow-2xl">
+                <div className="glass-card-inner rounded-2xl p-4 space-y-4">
+                  <div className="space-y-2">
                   <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Search</div>
                   <input
                     value={query}
@@ -192,7 +194,7 @@ function IssuesPageInner() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Status</div>
                     <select
@@ -222,7 +224,7 @@ function IssuesPageInner() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-border">
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
                   <button
                     type="button"
                     onClick={() => {
@@ -240,18 +242,20 @@ function IssuesPageInner() {
                   >
                     Apply
                   </button>
+                  </div>
                 </div>
               </div>
             )}
 
             {sortOpen && (
-              <div className="absolute right-0 top-10 z-20 w-64 bg-sidebar border border-border rounded-2xl shadow-2xl p-2">
-                {[
+              <div className="absolute left-0 sm:left-auto sm:right-0 top-12 z-20 w-full sm:w-64 glass-card rounded-2xl shadow-2xl">
+                <div className="glass-card-inner rounded-2xl p-2">
+                  {[
                   { id: 'newest', label: 'Newest first' },
                   { id: 'oldest', label: 'Oldest first' },
                   { id: 'priority_desc', label: 'Priority (high → low)' },
                   { id: 'priority_asc', label: 'Priority (low → high)' },
-                ].map((opt) => (
+                  ].map((opt) => (
                   <button
                     key={opt.id}
                     type="button"
@@ -265,7 +269,8 @@ function IssuesPageInner() {
                   >
                     {opt.label}
                   </button>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -273,7 +278,8 @@ function IssuesPageInner() {
       </div>
 
       {/* Main Content Area */}
-      <div className="border border-border/50 rounded-3xl bg-sidebar/20 p-8 flex flex-col items-stretch justify-start relative overflow-hidden">
+      <div className="glass-card rounded-3xl relative overflow-hidden">
+        <div className="glass-card-inner rounded-3xl p-3 sm:p-5 md:p-8 flex flex-col items-stretch justify-start">
         
         {visibleIssues.length === 0 ? (
           <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
@@ -340,6 +346,7 @@ function IssuesPageInner() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Create Issue Modal */}

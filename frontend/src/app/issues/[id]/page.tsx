@@ -29,6 +29,7 @@ export default function IssuePage() {
   const [error, setError] = useState<string | null>(null);
 
   const [comment, setComment] = useState('');
+  const [authorName, setAuthorName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingUid, setEditingUid] = useState<number | null>(null);
   const [editContent, setEditContent] = useState('');
@@ -45,6 +46,20 @@ export default function IssuePage() {
   const [isAnalyzingSummary, setIsAnalyzingSummary] = useState(false);
   const [isAnalyzingDetailed, setIsAnalyzingDetailed] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Persist a stable author name per browser/device for discussion attribution.
+    const key = 'issue-tracker-author-name';
+    const existing = window.localStorage.getItem(key)?.trim();
+    if (existing) {
+      setAuthorName(existing);
+      return;
+    }
+
+    const generated = `User-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    window.localStorage.setItem(key, generated);
+    setAuthorName(generated);
+  }, []);
 
   useEffect(() => {
     if (isCreateMode) {
@@ -109,8 +124,7 @@ export default function IssuePage() {
         const created = await api.createDiscussion({
           issueUid: uid,
           content: trimmed,
-          // The Discussion UI treats author case-insensitively as "you".
-          author: 'You',
+          author: authorName || 'Anonymous',
         });
         setDiscussions((prev) => [...prev, created]);
         setComment('');
@@ -258,13 +272,6 @@ export default function IssuePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 px-4">
       <div className="space-y-2 pt-8">
-        <Link
-          href="/issues"
-          className="md:hidden inline-flex items-center gap-2 text-xs font-bold text-text-muted hover:text-white transition-colors"
-        >
-          ← Prev
-        </Link>
-
         <div className="flex items-center gap-2 text-xs font-medium text-text-muted mb-1">
           <Link href="/" className="hover:text-white transition-colors">
             Home
@@ -281,16 +288,17 @@ export default function IssuePage() {
           ) : null}
         </div>
 
-        <h1 className="text-3xl font-bold text-white tracking-tight">
-          {isCreateMode ? 'Report New Issue' : safeIssue?.title}
-        </h1>
-
         {!isEditingIssue && !isCreateMode && safeIssue ? (
           <>
-            <div className="flex items-start justify-between gap-4">
-              <p className="text-text-muted text-sm leading-relaxed">{safeIssue.description}</p>
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div className="space-y-2 min-w-0">
+                <h1 className="text-3xl font-bold text-white tracking-tight">
+                  {safeIssue.title}
+                </h1>
+                <p className="text-text-muted text-sm leading-relaxed">{safeIssue.description}</p>
+              </div>
 
-              <div className="shrink-0 flex flex-col items-end gap-2 pt-1">
+              <div className="shrink-0 flex items-center gap-2 md:pt-1 md:justify-end">
                 <button
                   type="button"
                   onClick={handleStartEditIssue}
@@ -357,6 +365,9 @@ export default function IssuePage() {
           </>
         ) : (
           <div className="pt-4 space-y-4">
+            <h1 className="text-3xl font-bold text-white tracking-tight">
+              {isCreateMode ? 'Report New Issue' : safeIssue?.title}
+            </h1>
             <IssueForm
               title={editTitle}
               setTitle={setEditTitle}
@@ -420,7 +431,8 @@ export default function IssuePage() {
       </div>
 
       {/* Discussions */}
-      <div className="border border-border/50 rounded-3xl bg-sidebar/20 p-6">
+      <div className="glass-card rounded-3xl">
+        <div className="glass-card-inner rounded-3xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="text-white font-bold">Discussions</div>
           <div className="text-[10px] font-bold text-text-muted">{discTotal} comments</div>
@@ -431,6 +443,7 @@ export default function IssuePage() {
         ) : (
           <DiscussionList
             discussions={discussions}
+            currentAuthor={authorName}
             onDelete={handleDeleteDiscussion}
             onEdit={handleEditDiscussion}
             editingUid={editingUid}
@@ -468,6 +481,7 @@ export default function IssuePage() {
         )}
 
         <AddDiscussion comment={comment} setComment={setComment} onAdd={onAdd} isSubmitting={isSubmitting} />
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Discussion } from '@/types/issue';
 
 interface DiscussionListProps {
   discussions: Discussion[];
+  currentAuthor?: string;
   onDelete: (uid: number) => void;
   onEdit: (uid: number , content: string) => void;
   editingUid: number | null;
@@ -13,6 +14,7 @@ interface DiscussionListProps {
 
 const DiscussionList: React.FC<DiscussionListProps> = ({ 
   discussions, 
+  currentAuthor,
   onDelete, 
   onEdit, 
   editingUid, 
@@ -20,10 +22,12 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
   setEditContent,
   setEditingUid
 }) => {
+  const normalize = (value: string) => value.trim().toLowerCase();
+
   return (
     <div className="space-y-6">
       {discussions.map((d) => {
-        const isMe = d.author.toLowerCase() === 'you';
+        const isMe = !!currentAuthor && normalize(d.author) === normalize(currentAuthor);
         return (
           <div key={d.uid} className={`flex gap-4 ${isMe ? 'flex-row-reverse' : ''}`}>
             <div className={`w-10 h-10 rounded-full flex-0 flex items-center justify-center font-bold text-white overflow-hidden border border-border ${isMe ? 'bg-accent' : 'bg-slate-700'}`}>

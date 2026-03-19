@@ -28,6 +28,21 @@ body {
   font-family: var(--font-geist-sans), sans-serif;
 }
 
+/* Reusable glass border style used across pages */
+.glass-card {
+  background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0.008), rgba(62, 61, 245, 0.022));
+  padding: 1px;
+  border-radius: 1.5rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.glass-card-inner {
+  border-radius: calc(1.5rem - 1px);
+  border: 1px solid rgba(255, 255, 255, 0.024);
+  background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.008), rgba(255, 255, 255, 0.003), rgba(62, 61, 245, 0.008));
+  backdrop-filter: blur(16px);
+}
+
 /* Custom scrollbar for dark theme */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
