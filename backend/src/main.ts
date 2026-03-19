@@ -22,16 +22,33 @@ async function bootstrap() {
   }));
 
   // CORS
-  const corsOriginEnv = process.env.CORS_ORIGIN || " https://issue-tracker-ten-sable.vercel.app/";
-  const allowedOrigins = corsOriginEnv
-    ? corsOriginEnv.split(',').map((origin) => origin.trim()).filter(Boolean)
-    : ['http://localhost:3000'];
+  const corsOriginEnvRaw = process.env.CORS_ORIGIN;
+  const corsOriginEnv = corsOriginEnvRaw?.trim();
 
-  app.enableCors({
-    origin: allowedOrigins,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    credentials: true,
-  });
+  const allowedOrigins = corsOriginEnv
+    ? corsOriginEnv
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+        // Normalize so `https://example.com/` matches `https://example.com`
+        .map((origin) => origin.replace(/\/+$/, ''))
+    : [];
+
+  if (allowedOrigins.length) {
+    app.enableCors({
+      origin: allowedOrigins,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      credentials: true,
+    });
+  } else {
+    // If Render env var isn't set, allow requests from any origin so
+    // Vercel -> Render fetch doesn't fail with missing CORS headers.
+    app.enableCors({
+      origin: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      credentials: false,
+    });
+  }
 
   // Swagger setup
   const config = new DocumentBuilder()

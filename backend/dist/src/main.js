@@ -15,15 +15,29 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    const corsOriginEnv = process.env.CORS_ORIGIN || " https://issue-tracker-ten-sable.vercel.app/";
+    const corsOriginEnvRaw = process.env.CORS_ORIGIN;
+    const corsOriginEnv = corsOriginEnvRaw?.trim();
     const allowedOrigins = corsOriginEnv
-        ? corsOriginEnv.split(',').map((origin) => origin.trim()).filter(Boolean)
-        : ['http://localhost:3000'];
-    app.enableCors({
-        origin: allowedOrigins,
-        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-        credentials: true,
-    });
+        ? corsOriginEnv
+            .split(',')
+            .map((origin) => origin.trim())
+            .filter(Boolean)
+            .map((origin) => origin.replace(/\/+$/, ''))
+        : [];
+    if (allowedOrigins.length) {
+        app.enableCors({
+            origin: allowedOrigins,
+            methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+            credentials: true,
+        });
+    }
+    else {
+        app.enableCors({
+            origin: true,
+            methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+            credentials: false,
+        });
+    }
     const config = new swagger_1.DocumentBuilder()
         .setTitle('Issue Management Platform API')
         .setDescription('API documentation for the minimal issue management platform')
