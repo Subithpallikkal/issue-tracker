@@ -352,42 +352,45 @@ function IssuesPageInner() {
       {/* Create Issue Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="max-w-3xl w-full px-4">
-            <div className="bg-sidebar border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300 relative">
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(false)}
-                className="absolute right-4 top-4 text-text-muted hover:text-white text-sm font-bold"
-                aria-label="Close"
-              >
-                ✕
-              </button>
+          <div className="max-w-xl w-full px-2 sm:px-3">
+            <div className="glass-card rounded-2xl shadow-2xl animate-in fade-in zoom-in-95 duration-300 relative">
+              <div className="glass-card-inner rounded-2xl overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="absolute right-4 top-4 text-text-muted hover:text-white text-sm font-bold"
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
 
-              <div className="px-8 pt-8 pb-4 space-y-2">
-                <div className="flex items-center gap-2 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">
-                  <span className="text-accent text-xs">●</span>
-                  <span>Quick Create</span>
-                </div>
-                <h2 className="text-2xl font-extrabold text-white">New Issue</h2>
-                {createError && (
-                  <div className="mt-2 text-xs font-bold text-red-400 bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-2">
-                    {createError}
+                <div className="px-4 sm:px-5 pt-4 pb-2 space-y-1.5">
+                  <div className="flex items-center gap-2 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">
+                    <span className="text-accent text-xs">●</span>
+                    <span>Quick Create</span>
                   </div>
-                )}
-              </div>
+                  <h2 className="text-xl font-extrabold text-white">New Issue</h2>
+                  {createError && (
+                    <div className="mt-2 text-xs font-bold text-red-300 bg-red-500/12 border border-red-400/25 rounded-xl px-4 py-2">
+                      {createError}
+                    </div>
+                  )}
+                </div>
 
-              <div className="px-8 pb-8">
-                <IssueForm
-                  title={createTitle}
-                  setTitle={setCreateTitle}
-                  description={createDescription}
-                  setDescription={setCreateDescription}
-                  priority={createPriority}
-                  setPriority={setCreatePriority}
-                  onSubmit={handleCreateSubmit}
-                  isSubmitting={isCreating}
-                  onCancel={() => setShowCreateModal(false)}
-                />
+                <div className="px-4 sm:px-5 pb-4">
+                  <IssueForm
+                    title={createTitle}
+                    setTitle={setCreateTitle}
+                    description={createDescription}
+                    setDescription={setCreateDescription}
+                    priority={createPriority}
+                    setPriority={setCreatePriority}
+                    onSubmit={handleCreateSubmit}
+                    isSubmitting={isCreating}
+                    onCancel={() => setShowCreateModal(false)}
+                    compact
+                  />
+                </div>
               </div>
             </div>
           </div>

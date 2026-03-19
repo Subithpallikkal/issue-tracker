@@ -14,6 +14,7 @@ interface IssueFormProps {
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
   onCancel: () => void;
+  compact?: boolean;
 }
 
 const IssueForm: React.FC<IssueFormProps> = ({
@@ -22,7 +23,8 @@ const IssueForm: React.FC<IssueFormProps> = ({
   priority, setPriority,
   status,
   setStatus,
-  onSubmit, isSubmitting, onCancel
+  onSubmit, isSubmitting, onCancel,
+  compact = false,
 }) => {
   const showStatus = status !== undefined && typeof setStatus === 'function';
 
@@ -30,8 +32,8 @@ const IssueForm: React.FC<IssueFormProps> = ({
     <div className="glass-card rounded-3xl overflow-hidden animate-in fade-in zoom-in-95 duration-500">
       <div className="glass-card-inner rounded-3xl overflow-hidden">
         <div className="bg-accent h-1.5 w-full"></div>
-        <form onSubmit={onSubmit} className="p-8 space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <form onSubmit={onSubmit} className={compact ? 'p-5 sm:p-6 space-y-6' : 'p-8 space-y-10'}>
+          <div className={compact ? 'grid grid-cols-1 md:grid-cols-2 gap-5' : 'grid grid-cols-1 md:grid-cols-2 gap-10'}>
           <div className="space-y-3 col-span-2 md:col-span-2">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Issue Title</label>
             <input
@@ -45,7 +47,7 @@ const IssueForm: React.FC<IssueFormProps> = ({
           <div className="space-y-3 col-span-2 md:col-span-1">
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Urgency / Priority</label>
             <select
-              className="w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block p-4 outline-none transition-all appearance-none cursor-pointer"
+              className={`w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block outline-none transition-all appearance-none cursor-pointer ${compact ? 'p-3' : 'p-4'}`}
               value={priority}
               onChange={e => setPriority(e.target.value as any)}
             >
@@ -61,7 +63,7 @@ const IssueForm: React.FC<IssueFormProps> = ({
             <div className="space-y-3 col-span-2 md:col-span-1">
               <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Status</label>
               <select
-                className="w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block p-4 outline-none transition-all appearance-none cursor-pointer"
+                className={`w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block outline-none transition-all appearance-none cursor-pointer ${compact ? 'p-3' : 'p-4'}`}
                 value={status}
                 onChange={e => setStatus(e.target.value as any)}
               >
@@ -77,8 +79,8 @@ const IssueForm: React.FC<IssueFormProps> = ({
             <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] ml-1">Detailed Description</label>
             <textarea
               required
-              rows={6}
-              className="w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block p-4 outline-none transition-all placeholder:text-white/20 resize-none"
+              rows={compact ? 4 : 6}
+              className={`w-full bg-white/5 border border-border text-white text-sm rounded-2xl focus:ring-1 focus:ring-accent focus:border-accent block outline-none transition-all placeholder:text-white/20 resize-none ${compact ? 'p-3' : 'p-4'}`}
               placeholder="What happened? Steps to reproduce?"
               value={description}
               onChange={e => setDescription(e.target.value)}
@@ -86,19 +88,19 @@ const IssueForm: React.FC<IssueFormProps> = ({
           </div>
           </div>
 
-          <div className="flex justify-end gap-4 pt-8 border-t border-border">
+          <div className={`flex justify-end gap-3 ${compact ? 'pt-5' : 'pt-8'} border-t border-border`}>
             <Button 
               type="button" 
               variant="secondary" 
               onClick={onCancel} 
-              className="px-8 py-3 rounded-xl border border-border text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest"
+              className={`${compact ? 'px-5 py-2.5' : 'px-8 py-3'} rounded-xl border border-border text-text-muted hover:text-white hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest`}
             >
               Discard
             </Button>
             <Button 
               type="submit" 
               isLoading={isSubmitting} 
-              className="px-12 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white font-black shadow-lg shadow-accent/20 transition-all text-xs uppercase tracking-widest"
+              className={`${compact ? 'px-7 py-2.5' : 'px-12 py-3'} rounded-xl bg-accent hover:bg-accent-hover text-white font-black shadow-lg shadow-accent/20 transition-all text-xs uppercase tracking-widest`}
             >
               Save & Submit
             </Button>
