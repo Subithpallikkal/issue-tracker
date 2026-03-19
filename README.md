@@ -245,16 +245,18 @@ The system analyzes:
 
 ### Issues
 
-* `GET /issues`
+* `GET /issues/get_all?page=<number>&limit=<number>`
 * `POST /issues`
-* `GET /issues/:id`
-* `PATCH /issues/:id`
-* `DELETE /issues/:id`
+* `GET /issues/get_by_id/:uid`
+* `PATCH /issues/issues/update`
+* `DELETE /issues/delete`
 
 ### Discussions
 
-* `GET /issues/:id/discussions`
-* `POST /issues/:id/discussions`
+* `GET /discussions/get_all_by_issue/:issueUid?page=<number>&limit=<number>`
+* `POST /discussions/discussions`
+* `PATCH /discussions/update`
+* `DELETE /discussions/delete`
 
 ### AI
 
