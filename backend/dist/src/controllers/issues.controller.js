@@ -25,6 +25,9 @@ let IssuesController = class IssuesController {
     create(createIssueDto) {
         return this.issuesService.create(createIssueDto);
     }
+    seed() {
+        return this.issuesService.seed();
+    }
     findAll(page, limit) {
         const p = page ? Number(page) : 1;
         const l = limit ? Number(limit) : 10;
@@ -53,6 +56,13 @@ __decorate([
     __metadata("design:paramtypes", [issue_dto_1.CreateIssueDto]),
     __metadata("design:returntype", void 0)
 ], IssuesController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)('seed'),
+    (0, swagger_1.ApiOperation)({ summary: 'Seed issues and discussions' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], IssuesController.prototype, "seed", null);
 __decorate([
     (0, common_1.Get)('get_all'),
     (0, swagger_1.ApiOperation)({ summary: 'Get all issues' }),

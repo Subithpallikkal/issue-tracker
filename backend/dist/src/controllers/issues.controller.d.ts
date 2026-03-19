@@ -13,6 +13,11 @@ export declare class IssuesController {
         createdAt: Date;
         updatedAt: Date;
     }>;
+    seed(): Promise<{
+        seeded: boolean;
+        issuesCount: number;
+        discussionsCount: number;
+    }>;
     findAll(page?: string, limit?: string): Promise<{
         items: {
             uid: number;

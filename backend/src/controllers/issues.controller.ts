@@ -25,6 +25,12 @@ export class IssuesController {
     return this.issuesService.create(createIssueDto);
   }
 
+  @Post('seed')
+  @ApiOperation({ summary: 'Seed issues and discussions' })
+  seed() {
+    return this.issuesService.seed();
+  }
+
   @Get('get_all')
   @ApiOperation({ summary: 'Get all issues' })
   findAll(

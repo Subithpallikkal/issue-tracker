@@ -1,6 +1,7 @@
 import { DrizzleService } from '../database/drizzle.service';
 import { CreateIssueDto, UpdateIssueDto, DeleteIssueDto, AnalyzeIssueDto } from '../dto/issue.dto';
 import { AiService } from './ai.service';
+import { IssuePriority, IssueStatus } from '../enums/issue.enum';
 export declare class IssuesService {
     private drizzleService;
     private aiService;
@@ -9,19 +10,24 @@ export declare class IssuesService {
         uid: number;
         title: string;
         description: string;
-        status: import("../enums/issue.enum").IssueStatus;
-        priority: import("../enums/issue.enum").IssuePriority;
+        status: IssueStatus;
+        priority: IssuePriority;
         aiAnalysis: string | null;
         createdAt: Date;
         updatedAt: Date;
+    }>;
+    seed(): Promise<{
+        seeded: boolean;
+        issuesCount: number;
+        discussionsCount: number;
     }>;
     findAll(page?: number, limit?: number): Promise<{
         items: {
             uid: number;
             title: string;
             description: string;
-            status: import("../enums/issue.enum").IssueStatus;
-            priority: import("../enums/issue.enum").IssuePriority;
+            status: IssueStatus;
+            priority: IssuePriority;
             aiAnalysis: string | null;
             createdAt: Date;
             updatedAt: Date;
@@ -41,8 +47,8 @@ export declare class IssuesService {
         uid: number;
         title: string;
         description: string;
-        status: import("../enums/issue.enum").IssueStatus;
-        priority: import("../enums/issue.enum").IssuePriority;
+        status: IssueStatus;
+        priority: IssuePriority;
         aiAnalysis: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -51,8 +57,8 @@ export declare class IssuesService {
         uid: number;
         title: string;
         description: string;
-        status: import("../enums/issue.enum").IssueStatus;
-        priority: import("../enums/issue.enum").IssuePriority;
+        status: IssueStatus;
+        priority: IssuePriority;
         aiAnalysis: string | null;
         createdAt: Date;
         updatedAt: Date;
@@ -61,8 +67,8 @@ export declare class IssuesService {
         uid: number;
         title: string;
         description: string;
-        status: import("../enums/issue.enum").IssueStatus;
-        priority: import("../enums/issue.enum").IssuePriority;
+        status: IssueStatus;
+        priority: IssuePriority;
         aiAnalysis: string | null;
         createdAt: Date;
         updatedAt: Date;
