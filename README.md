@@ -6,6 +6,13 @@ This project demonstrates clean architecture, API design, and full-stack integra
 
 ---
 
+## 🚀 Live Deployments
+
+- **Frontend (Application):** [Live Site](https://issue-tracker-ten-sable.vercel.app/)
+- **Backend (API Base URL):** [Render API](https://issue-tracker-yie2.onrender.com)
+- **API Documentation:** [Swagger Docs](https://issue-tracker-yie2.onrender.com/api/docs)
+  
+
 ## 🧰 Tech Stack
 
 ### 🔙 Backend
