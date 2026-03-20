@@ -13,17 +13,18 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'inline-flex items-center justify-center rounded-xl font-bold text-xs tracking-widest uppercase transition-all focus:outline-none focus:ring-1 focus:ring-accent/60 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95';
+    'inline-flex items-center justify-center rounded-xl font-bold text-xs tracking-widest uppercase transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]';
 
+  /* Glass blurred gradient — no solid accent/blue */
   const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
     primary:
-      'bg-accent text-white shadow-lg shadow-accent/20 hover:bg-accent-hover px-5 py-2',
+      'px-5 py-2 text-white border border-white/18 bg-linear-to-br from-white/16 via-white/6 to-white/12 backdrop-blur-md shadow-[0_8px_28px_rgba(0,0,0,0.18)] hover:from-white/22 hover:via-white/10 hover:to-white/16 hover:border-white/24',
     secondary:
-      'bg-white/5 text-text-muted border border-border hover:text-white hover:bg-white/10 px-5 py-2',
+      'px-5 py-2 text-text-muted border border-white/10 bg-linear-to-br from-white/6 via-white/3 to-white/8 backdrop-blur-md hover:text-white hover:from-white/10 hover:via-white/5 hover:to-white/12 hover:border-white/16',
     danger:
-      'bg-red-600/90 text-white shadow-lg shadow-red-600/30 hover:bg-red-500 px-5 py-2',
+      'px-5 py-2 text-white border border-rose-400/25 bg-linear-to-br from-rose-500/25 via-rose-500/10 to-white/8 backdrop-blur-md shadow-[0_8px_28px_rgba(0,0,0,0.18)] hover:from-rose-500/35 hover:via-rose-500/15 hover:border-rose-400/35',
     ghost:
-      'bg-transparent text-text-muted hover:text-white hover:bg-white/5 px-3 py-1.5',
+      'px-3 py-1.5 text-text-muted border border-transparent bg-transparent backdrop-blur-sm hover:text-white hover:border-white/10 hover:bg-white/8',
   };
 
   return (

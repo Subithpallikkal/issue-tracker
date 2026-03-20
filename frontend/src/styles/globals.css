@@ -43,6 +43,46 @@ body {
   backdrop-filter: blur(16px);
 }
 
+/* Primary actions — frosted gradient (no solid blue accent) */
+.btn-glass-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-image: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.12)
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  transition:
+    background-image 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
+}
+.btn-glass-primary:hover:not(:disabled) {
+  background-image: linear-gradient(
+    to bottom right,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.16)
+  );
+  border-color: rgba(255, 255, 255, 0.24);
+}
+.btn-glass-primary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn-glass-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Custom scrollbar for dark theme */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

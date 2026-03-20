@@ -15,12 +15,12 @@ const AddDiscussion: React.FC<AddDiscussionProps> = ({ comment, setComment, onAd
         required
         value={comment}
         onChange={e => setComment(e.target.value)}
-        className="w-full bg-sidebar border border-border rounded-xl p-4 pr-14 text-sm text-white outline-none focus:ring-1 focus:ring-accent transition-all shadow-inner"
+        className="w-full bg-sidebar border border-border rounded-xl p-4 pr-14 text-sm text-white outline-none focus:ring-1 focus:ring-white/25 transition-all shadow-inner"
       />
       <button 
         type="submit" 
         disabled={isSubmitting}
-        className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white hover:bg-accent-hover transition-all disabled:opacity-50"
+        className="btn-glass-primary absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg text-sm disabled:opacity-50"
       >
         {isSubmitting ? '...' : '➤'}
       </button>

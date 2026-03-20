@@ -162,7 +162,7 @@ function IssuesPageInner() {
             <button
               type="button"
               onClick={openCreateModal}
-              className="bg-accent hover:bg-accent-hover text-white px-3 sm:px-4 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-accent/20 transition-all active:scale-95"
+              className="btn-glass-primary px-3 sm:px-4 py-2 rounded-lg text-xs flex items-center justify-center gap-2"
             >
               <span className="text-lg">+</span>
               <span className="sm:hidden">New</span>
@@ -190,7 +190,7 @@ function IssuesPageInner() {
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search by title, description, or #id"
-                    className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-accent focus:border-accent block px-3 py-2 outline-none transition-all placeholder:text-white/20"
+                    className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-white/25 focus:border-white/20 block px-3 py-2 outline-none transition-all placeholder:text-white/20"
                   />
                 </div>
 
@@ -200,7 +200,7 @@ function IssuesPageInner() {
                     <select
                       value={status}
                       onChange={(e) => setStatus(e.target.value as any)}
-                      className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-accent focus:border-accent block px-3 py-2 outline-none transition-all"
+                      className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-white/25 focus:border-white/20 block px-3 py-2 outline-none transition-all"
                     >
                       <option value="ALL" className="bg-sidebar text-white">All</option>
                       {Object.values(IssueStatus).map((s) => (
@@ -214,7 +214,7 @@ function IssuesPageInner() {
                     <select
                       value={priority}
                       onChange={(e) => setPriority(e.target.value as any)}
-                      className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-accent focus:border-accent block px-3 py-2 outline-none transition-all"
+                      className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-white/25 focus:border-white/20 block px-3 py-2 outline-none transition-all"
                     >
                       <option value="ALL" className="bg-sidebar text-white">All</option>
                       {Object.values(IssuePriority).map((p) => (
@@ -238,7 +238,7 @@ function IssuesPageInner() {
                   <button
                     type="button"
                     onClick={() => setFiltersOpen(false)}
-                    className="bg-accent hover:bg-accent-hover text-white px-4 py-2 rounded-xl text-xs font-bold transition-all active:scale-95"
+                    className="btn-glass-primary px-4 py-2 rounded-xl text-xs"
                   >
                     Apply
                   </button>
@@ -278,14 +278,14 @@ function IssuesPageInner() {
       </div>
 
       {/* Main Content Area */}
-      <div className="glass-card rounded-3xl relative overflow-hidden">
-        <div className="glass-card-inner rounded-3xl p-3 sm:p-5 md:p-8 flex flex-col items-stretch justify-start">
+      <div className="glass-card rounded-3xl relative overflow-visible">
+        <div className="glass-card-inner rounded-3xl p-3 sm:p-5 md:p-8 flex flex-col items-stretch justify-start overflow-visible">
         
         {visibleIssues.length === 0 ? (
           <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
             <div className="w-32 h-32 rounded-full bg-sidebar flex items-center justify-center relative border border-border shadow-2xl">
               <div className="text-5xl opacity-50">🔍</div>
-              <div className="absolute bottom-6 right-6 w-6 h-6 bg-accent rounded-full border-4 border-background flex items-center justify-center text-[10px] text-white font-bold">✕</div>
+              <div className="absolute bottom-6 right-6 w-6 h-6 rounded-full border-2 border-white/20 flex items-center justify-center text-[10px] text-white font-bold bg-linear-to-br from-white/22 to-white/8">✕</div>
             </div>
             
             <div className="space-y-3 max-w-lg">
@@ -300,7 +300,7 @@ function IssuesPageInner() {
               <button
                 type="button"
                 onClick={openCreateModal}
-                className="bg-accent hover:bg-accent-hover text-white px-6 py-2.5 rounded-xl font-bold flex items-static gap-2 shadow-lg shadow-accent/20 transition-all active:scale-95"
+                className="btn-glass-primary px-6 py-2.5 rounded-xl font-bold flex items-static gap-2"
               >
                 <span className="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-xs">+</span>
                 Create New Issue
@@ -320,17 +320,17 @@ function IssuesPageInner() {
               <IssueCard key={issue.uid} issue={issue} onDelete={handleDelete} />
             ))}
 
-            {/* Pagination */}
-            <div className="pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Pagination — extra bottom space on mobile so controls stay above fixed bottom nav */}
+            <div className="pt-6 pb-2 md:pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-[10px] font-bold text-text-muted">
                 Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
               </div>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="flex flex-row sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage(page - 1)}
-                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-sidebar border border-border text-text-muted px-3 py-2.5 sm:py-1.5 rounded-lg text-xs font-bold flex-1 sm:flex-none min-h-11 sm:min-h-0 sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Prev
                 </button>
@@ -338,7 +338,7 @@ function IssuesPageInner() {
                   type="button"
                   disabled={page * limit >= total}
                   onClick={() => setPage(page + 1)}
-                  className="bg-sidebar border border-border text-text-muted px-3 py-1.5 rounded-lg text-xs font-bold w-full sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-sidebar border border-border text-text-muted px-3 py-2.5 sm:py-1.5 rounded-lg text-xs font-bold flex-1 sm:flex-none min-h-11 sm:min-h-0 sm:w-auto hover:text-white hover:bg-white/5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>

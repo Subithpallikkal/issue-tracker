@@ -310,7 +310,7 @@ export default function IssuePage() {
                   type="button"
                   onClick={runSummaryAnalysis}
                   disabled={isAnalyzingSummary || isAnalyzingDetailed}
-                  className="bg-accent hover:bg-accent-hover text-white px-3 py-2 rounded-lg text-xs font-bold shadow-lg shadow-accent/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-glass-primary px-3 py-2 rounded-lg text-xs"
                 >
                   <span className="inline-flex items-center gap-2">
                     <svg

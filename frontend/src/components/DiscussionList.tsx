@@ -30,7 +30,7 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
         const isMe = !!currentAuthor && normalize(d.author) === normalize(currentAuthor);
         return (
           <div key={d.uid} className={`flex gap-4 ${isMe ? 'flex-row-reverse' : ''}`}>
-            <div className={`w-10 h-10 rounded-full flex-0 flex items-center justify-center font-bold text-white overflow-hidden border border-border ${isMe ? 'bg-accent' : 'bg-slate-700'}`}>
+            <div className={`w-10 h-10 rounded-full flex-0 flex items-center justify-center font-bold text-white overflow-hidden border ${isMe ? 'border-white/20 bg-linear-to-br from-white/20 to-white/8' : 'border-border bg-slate-700'}`}>
               {isMe ? '👤' : d.author[0].toUpperCase()}
             </div>
             <div className={`max-w-[80%] space-y-2 ${isMe ? 'items-end' : ''}`}>
@@ -61,7 +61,7 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
                   <textarea
                     value={editContent}
                     onChange={e => setEditContent(e.target.value)}
-                    className="w-full bg-sidebar border border-border rounded-xl p-3 text-sm text-white outline-none focus:ring-1 focus:ring-accent"
+                    className="w-full bg-sidebar border border-border rounded-xl p-3 text-sm text-white outline-none focus:ring-1 focus:ring-white/25"
                   />
                   <div className="flex gap-2">
                     <button 
@@ -69,7 +69,7 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
                         await onEdit(d.uid, editContent);
                         setEditingUid(null);
                       }}
-                      className="bg-accent text-white px-3 py-1 rounded text-[10px] font-bold"
+                      className="btn-glass-primary px-3 py-1 rounded text-[10px]"
                     >
                       Save
                     </button>
@@ -84,7 +84,7 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
               ) : (
                 <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
                   isMe 
-                  ? 'bg-accent text-white rounded-tr-none shadow-lg shadow-accent/10' 
+                  ? 'text-white rounded-tr-none border border-white/15 bg-linear-to-br from-white/14 via-white/6 to-white/10 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.12)]' 
                   : 'bg-sidebar border border-border text-text-muted rounded-tl-none'
                 }`}>
                   {d.content}

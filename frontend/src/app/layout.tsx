@@ -34,7 +34,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <Header />
           </Suspense>
-          <main className="flex-1 overflow-y-auto custom-scrollbar pb-20 md:pb-0">
+          <main className="flex-1 overflow-y-auto custom-scrollbar pb-[calc(3.75rem+env(safe-area-inset-bottom,0px)+12px)] md:pb-0">
             <div className="px-1 py-2 sm:px-3 sm:py-3 md:p-5 max-w-7xl mx-auto w-full">
               {children}
             </div>

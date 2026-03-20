@@ -25,8 +25,9 @@ const Header: React.FC = () => {
   }, [isOptionsOpen, isProfileOpen]);
 
   return (
-    <header className="h-16 sticky top-0 bg-background/80 backdrop-blur-md border-b border-border z-30 px-3 sm:px-4 md:px-8 flex items-center justify-between gap-2">
-      <div className="min-w-0">
+    <header className="h-16 sticky top-0 bg-background/80 backdrop-blur-md border-b border-border z-30 px-3 sm:px-4 md:px-8 flex items-center justify-between md:justify-end gap-2">
+      {/* Platform name: mobile only (sidebar shows branding on desktop) */}
+      <div className="min-w-0 md:hidden">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-bold">
             🚀
@@ -34,8 +35,9 @@ const Header: React.FC = () => {
           <span className="text-lg sm:text-xl font-bold tracking-tight text-white truncate">Issue Tracker</span>
         </Link>
       </div>
-      
-      <div className="relative shrink-0">
+
+      {/* Mobile: options menu (hamburger) */}
+      <div className="relative shrink-0 md:hidden">
         <button
           type="button"
           onClick={() => setIsOptionsOpen((prev) => !prev)}
@@ -78,6 +80,29 @@ const Header: React.FC = () => {
             </div>
           </>
         )}
+      </div>
+
+      {/* Desktop: direct actions (no hamburger) */}
+      <div className="hidden md:flex items-center gap-3 shrink-0">
+        {pathname?.startsWith('/issues/') && (
+          <Link
+            href="/issues/new"
+            className="btn-glass-primary px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2"
+          >
+            <span className="text-base leading-none">+</span>
+            New Issue
+          </Link>
+        )}
+        <button
+          type="button"
+          onClick={() => setIsProfileOpen(true)}
+          className="p-2 rounded-lg text-text-muted hover:text-white transition-colors"
+          aria-label="Open profile"
+        >
+          <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-sidebar/40 border border-border text-white font-bold text-xs">
+            JD
+          </span>
+        </button>
       </div>
 
       {isProfileOpen && (
