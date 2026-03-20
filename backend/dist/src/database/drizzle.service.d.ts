@@ -6,6 +6,7 @@ export declare class DrizzleService implements OnModuleInit, OnModuleDestroy {
     private configService;
     db: NodePgDatabase<typeof schema>;
     private pool;
+    private readonly logger;
     constructor(configService: ConfigService);
     onModuleInit(): Promise<void>;
     onModuleDestroy(): Promise<void>;

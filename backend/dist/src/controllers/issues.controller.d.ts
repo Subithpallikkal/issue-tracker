@@ -4,11 +4,11 @@ export declare class IssuesController {
     private readonly issuesService;
     constructor(issuesService: IssuesService);
     create(createIssueDto: CreateIssueDto): Promise<{
+        status: import("../enums/issue.enum").IssueStatus;
+        priority: import("../enums/issue.enum").IssuePriority;
         uid: number;
         title: string;
         description: string;
-        status: import("../enums/issue.enum").IssueStatus;
-        priority: import("../enums/issue.enum").IssuePriority;
         aiAnalysis: string | null;
         createdAt: Date;
         updatedAt: Date;

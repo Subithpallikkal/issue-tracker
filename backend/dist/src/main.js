@@ -7,6 +7,7 @@ const swagger_1 = require("@nestjs/swagger");
 const all_exceptions_filter_1 = require("./exceptions/all-exceptions.filter");
 const transform_interceptor_1 = require("./interceptors/transform.interceptor");
 async function bootstrap() {
+    const logger = new common_1.Logger('Bootstrap');
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter());
     app.useGlobalInterceptors(new transform_interceptor_1.TransformInterceptor());
@@ -49,8 +50,12 @@ async function bootstrap() {
     swagger_1.SwaggerModule.setup('api/docs', app, document);
     const port = process.env.PORT || 10000;
     await app.listen(port);
-    console.log(`Application is running on: http://localhost:${port}`);
-    console.log(`Swagger documentation: http://localhost:${port}/api/docs`);
+    logger.log(`Application is running on: http://localhost:${port}`);
+    logger.log(`Swagger documentation: http://localhost:${port}/api/docs`);
 }
-bootstrap();
+bootstrap().catch((error) => {
+    const logger = new common_1.Logger('Bootstrap');
+    logger.error('Application failed to start.', error instanceof Error ? error.stack : String(error));
+    process.exit(1);
+});
 //# sourceMappingURL=main.js.map

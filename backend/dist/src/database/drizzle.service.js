@@ -41,6 +41,7 @@ var __importStar = (this && this.__importStar) || (function () {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var DrizzleService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DrizzleService = void 0;
 const common_1 = require("@nestjs/common");
@@ -48,25 +49,53 @@ const config_1 = require("@nestjs/config");
 const node_postgres_1 = require("drizzle-orm/node-postgres");
 const pg_1 = require("pg");
 const schema = __importStar(require("./schema/index"));
-let DrizzleService = class DrizzleService {
+let DrizzleService = DrizzleService_1 = class DrizzleService {
     configService;
     db;
     pool;
+    logger = new common_1.Logger(DrizzleService_1.name);
     constructor(configService) {
         this.configService = configService;
     }
     async onModuleInit() {
-        this.pool = new pg_1.Pool({
-            connectionString: this.configService.get('DATABASE_URL'),
-        });
-        this.db = (0, node_postgres_1.drizzle)(this.pool, { schema });
+        const connectionString = this.configService.get('DATABASE_URL');
+        if (!connectionString) {
+            this.logger.error('DATABASE_URL is missing. Database initialization failed.');
+            throw new Error('DATABASE_URL is not configured');
+        }
+        const maxRetries = 5;
+        const baseDelayMs = 1500;
+        let lastError;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            this.pool = new pg_1.Pool({ connectionString });
+            try {
+                await this.pool.query('SELECT 1');
+                this.db = (0, node_postgres_1.drizzle)(this.pool, { schema });
+                this.logger.log(`Database connected successfully (attempt ${attempt}/${maxRetries}).`);
+                return;
+            }
+            catch (error) {
+                lastError = error;
+                this.logger.error(`Database connection failed (attempt ${attempt}/${maxRetries}).`, error instanceof Error ? error.stack : String(error));
+                await this.pool.end().catch(() => undefined);
+                if (attempt < maxRetries) {
+                    const backoffMs = baseDelayMs * attempt;
+                    this.logger.warn(`Retrying database connection in ${backoffMs}ms...`);
+                    await new Promise((resolve) => setTimeout(resolve, backoffMs));
+                }
+            }
+        }
+        this.logger.error('Database initialization failed after maximum retries.');
+        throw lastError instanceof Error ? lastError : new Error(String(lastError));
     }
     async onModuleDestroy() {
-        await this.pool.end();
+        if (this.pool) {
+            await this.pool.end();
+        }
     }
 };
 exports.DrizzleService = DrizzleService;
-exports.DrizzleService = DrizzleService = __decorate([
+exports.DrizzleService = DrizzleService = DrizzleService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [config_1.ConfigService])
 ], DrizzleService);

@@ -7,11 +7,11 @@ export declare class IssuesService {
     private aiService;
     constructor(drizzleService: DrizzleService, aiService: AiService);
     create(createIssueDto: CreateIssueDto): Promise<{
+        status: IssueStatus;
+        priority: IssuePriority;
         uid: number;
         title: string;
         description: string;
-        status: IssueStatus;
-        priority: IssuePriority;
         aiAnalysis: string | null;
         createdAt: Date;
         updatedAt: Date;
