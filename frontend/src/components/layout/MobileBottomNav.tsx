@@ -1,4 +1,4 @@
- 'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,9 +15,10 @@ export default function MobileBottomNav() {
   return (
     <nav
       aria-label="Bottom navigation"
-      className="md:hidden fixed left-0 right-0 bottom-0 h-14 border-t border-border bg-background/80 backdrop-blur-md z-50 pb-[env(safe-area-inset-bottom)]"
+      className="md:hidden fixed left-0 right-0 bottom-0 z-50 border-t border-border bg-background/80 backdrop-blur-md pb-[env(safe-area-inset-bottom,0px)]"
     >
-      <div className="h-full flex items-center justify-around px-2">
+      {/* Row height matches layout main bottom padding calc (3.5rem + safe-area + buffer) */}
+      <div className="h-14 flex items-center justify-around px-2">
         {navItems.map((item) => {
           const isActive =
             item.href === '/dashboard'

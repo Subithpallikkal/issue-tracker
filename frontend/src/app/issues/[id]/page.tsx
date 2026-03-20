@@ -455,7 +455,7 @@ export default function IssuePage() {
 
         {/* Discussion pagination */}
         {discTotal > discLimit && (
-          <div className="pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="pt-6 pb-2 md:pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="text-[10px] font-bold text-text-muted">
               Page {discPage} of {Math.max(1, Math.ceil(discTotal / discLimit))}
             </div>

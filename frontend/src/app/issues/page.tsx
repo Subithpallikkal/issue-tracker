@@ -86,17 +86,34 @@ function IssuesPageInner() {
     setStatus('ALL');
     setPriority('ALL');
     setSort('newest');
-    // Clear header search query param too
+    // Clear search query param in URL
     const params = new URLSearchParams(searchParams.toString());
     params.delete('search');
     router.push(`/issues${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
-  // Initialize / sync query from ?search= in URL (set by header)
+  // Sync query from ?search= when URL changes (back/forward, shared links)
   useEffect(() => {
     const current = searchParams.get('search') ?? '';
     setQuery(current);
   }, [searchParams]);
+
+  // Keep ?search= in sync while typing (debounced, shareable URLs)
+  useEffect(() => {
+    const trimmed = query.trim();
+    const fromUrl = searchParams.get('search') ?? '';
+    if (trimmed === fromUrl) return;
+
+    const id = window.setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (trimmed) params.set('search', trimmed);
+      else params.delete('search');
+      const qs = params.toString();
+      router.replace(`/issues${qs ? `?${qs}` : ''}`, { scroll: false });
+    }, 350);
+
+    return () => window.clearTimeout(id);
+  }, [query, router, searchParams]);
 
   const openCreateModal = () => {
     setCreateTitle('');
@@ -148,9 +165,26 @@ function IssuesPageInner() {
           <span>›</span>
           <span className="text-white">Issues</span>
         </div>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-2 gap-3">
-          <h1 className="text-3xl font-bold text-white tracking-tight">Issues</h1>
-          <div className="grid grid-cols-3 sm:flex items-center gap-2 relative w-full sm:w-auto">
+        {/* Title row: Issues | search (fills middle) | Filters / Sort / New — matches header layout on mobile */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-2 sm:gap-x-3 pt-2 w-full min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight shrink-0">
+            Issues
+          </h1>
+          <div className="flex-1 min-w-0 sm:min-w-48">
+            <label htmlFor="issues-list-search" className="sr-only">
+              Search issues
+            </label>
+            <input
+              id="issues-list-search"
+              type="search"
+              enterKeyHint="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search title, #id…"
+              className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-white/25 focus:border-white/20 px-3 py-2 outline-none transition-all placeholder:text-white/30 h-10 min-h-10"
+            />
+          </div>
+          <div className="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 relative w-full sm:w-auto shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -196,16 +230,6 @@ function IssuesPageInner() {
             {filtersOpen && (
               <div className="absolute left-0 sm:left-auto sm:right-0 top-12 z-20 w-full sm:w-80 glass-card rounded-2xl shadow-2xl">
                 <div className="glass-card-inner rounded-2xl p-4 space-y-4">
-                  <div className="space-y-2">
-                  <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Search</div>
-                  <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search by title, description, or #id"
-                    className="w-full bg-white/5 border border-border text-white text-sm rounded-xl focus:ring-1 focus:ring-white/25 focus:border-white/20 block px-3 py-2 outline-none transition-all placeholder:text-white/20"
-                  />
-                </div>
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <div className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">Status</div>
@@ -292,7 +316,7 @@ function IssuesPageInner() {
       {/* Main Content Area */}
       <div className="glass-card rounded-3xl relative overflow-visible">
         <div className="glass-card-inner rounded-3xl p-3 sm:p-5 md:p-8 flex flex-col items-stretch justify-start overflow-visible">
-        
+
         {visibleIssues.length === 0 ? (
           <div className="flex flex-col items-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
             <div className="w-32 h-32 rounded-full bg-sidebar flex items-center justify-center relative border border-border shadow-2xl">
@@ -332,8 +356,8 @@ function IssuesPageInner() {
               <IssueCard key={issue.uid} issue={issue} onDelete={handleDeleteClick} />
             ))}
 
-            {/* Pagination — extra bottom space on mobile so controls stay above fixed bottom nav */}
-            <div className="pt-6 pb-2 md:pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Pagination — extra bottom space on mobile (layout also pads for bottom nav) */}
+            <div className="pt-6 pb-6 md:pb-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="text-[10px] font-bold text-text-muted">
                 Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
               </div>

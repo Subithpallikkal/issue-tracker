@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   description: "Minimal issue management platform with Gemini AI analysis",
 };
 
+/** Lets `env(safe-area-inset-*)` work on notched phones so content clears the home indicator + bottom nav */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,12 +37,17 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground h-screen overflow-hidden flex`}>
         <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0 h-full relative lg:pl-64">
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full relative lg:pl-64">
           <Suspense fallback={null}>
             <Header />
           </Suspense>
-          <main className="flex-1 overflow-y-auto custom-scrollbar pb-[calc(3.75rem+env(safe-area-inset-bottom,0px)+12px)] md:pb-0">
-            <div className="px-1 py-2 sm:px-3 sm:py-3 md:p-5 max-w-7xl mx-auto w-full">
+          <main
+            className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar
+              scroll-pb-[calc(3.5rem+env(safe-area-inset-bottom,0px)+1.25rem)]
+              pb-[calc(3.5rem+env(safe-area-inset-bottom,0px)+1.75rem)]
+              md:scroll-pb-0 md:pb-0"
+          >
+            <div className="px-1 py-2 sm:px-3 sm:py-3 md:p-5 max-w-7xl mx-auto w-full min-h-0">
               {children}
             </div>
           </main>
