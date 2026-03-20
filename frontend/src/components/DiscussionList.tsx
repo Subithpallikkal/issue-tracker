@@ -1,10 +1,13 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { Discussion } from '@/types/issue';
+import ConfirmModal from './common/ConfirmModal';
 
 interface DiscussionListProps {
   discussions: Discussion[];
   currentAuthor?: string;
-  onDelete: (uid: number) => void;
+  onDelete: (uid: number) => void | Promise<void>;
   onEdit: (uid: number , content: string) => void;
   editingUid: number | null;
   editContent: string;
@@ -22,7 +25,21 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
   setEditContent,
   setEditingUid
 }) => {
+  const [deleteConfirmUid, setDeleteConfirmUid] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const normalize = (value: string) => value.trim().toLowerCase();
+
+  const confirmDeleteComment = async () => {
+    if (deleteConfirmUid == null) return;
+    setIsDeleting(true);
+    try {
+      await onDelete(deleteConfirmUid);
+      setDeleteConfirmUid(null);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -42,13 +59,15 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
                 {isMe && (
                   <div className="flex gap-2">
                     <button 
+                      type="button"
                       onClick={() => { setEditingUid(d.uid); setEditContent(d.content); }}
                       className="text-text-muted hover:text-accent transition-colors text-[10px]"
                     >
                       Edit
                     </button>
                     <button 
-                      onClick={() => onDelete(d.uid)}
+                      type="button"
+                      onClick={() => setDeleteConfirmUid(d.uid)}
                       className="text-text-muted hover:text-red-500 transition-colors text-[10px]"
                     >
                       Delete
@@ -65,6 +84,7 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
                   />
                   <div className="flex gap-2">
                     <button 
+                      type="button"
                       onClick={async () => {
                         await onEdit(d.uid, editContent);
                         setEditingUid(null);
@@ -74,6 +94,7 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
                       Save
                     </button>
                     <button 
+                      type="button"
                       onClick={() => setEditingUid(null)}
                       className="bg-white/5 text-text-muted px-3 py-1 rounded text-[10px] font-bold"
                     >
@@ -94,6 +115,20 @@ const DiscussionList: React.FC<DiscussionListProps> = ({
           </div>
         );
       })}
+
+      <ConfirmModal
+        open={deleteConfirmUid !== null}
+        title="Delete this comment?"
+        message="This can’t be undone. The comment will be removed from the thread."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        isLoading={isDeleting}
+        onConfirm={confirmDeleteComment}
+        onCancel={() => {
+          if (!isDeleting) setDeleteConfirmUid(null);
+        }}
+      />
     </div>
   );
 };

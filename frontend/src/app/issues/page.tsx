@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { IssueCard, IssueForm } from '@/components';
+import { IssueCard, IssueForm, ConfirmModal } from '@/components';
 import { useIssues } from '@/hooks/useIssues';
 import Link from 'next/link';
 import { IssuePriority, IssueStatus } from '@/types/issue';
@@ -25,12 +25,24 @@ function IssuesPageInner() {
   const [createPriority, setCreatePriority] = useState<IssuePriority>(IssuePriority.MEDIUM);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [deleteConfirmUid, setDeleteConfirmUid] = useState<number | null>(null);
+  const [isDeletingIssue, setIsDeletingIssue] = useState(false);
 
-  const handleDelete = async (e: React.MouseEvent, uid: number) => {
+  const handleDeleteClick = (e: React.MouseEvent, uid: number) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this issue?')) return;
-    await deleteIssue(uid);
+    setDeleteConfirmUid(uid);
+  };
+
+  const confirmDeleteIssue = async () => {
+    if (deleteConfirmUid == null) return;
+    setIsDeletingIssue(true);
+    try {
+      await deleteIssue(deleteConfirmUid);
+      setDeleteConfirmUid(null);
+    } finally {
+      setIsDeletingIssue(false);
+    }
   };
 
   const allIssues = Array.isArray(issues) ? issues : [];
@@ -317,7 +329,7 @@ function IssuesPageInner() {
         ) : (
           <div className="w-full space-y-3">
             {visibleIssues.map((issue) => (
-              <IssueCard key={issue.uid} issue={issue} onDelete={handleDelete} />
+              <IssueCard key={issue.uid} issue={issue} onDelete={handleDeleteClick} />
             ))}
 
             {/* Pagination — extra bottom space on mobile so controls stay above fixed bottom nav */}
@@ -396,6 +408,20 @@ function IssuesPageInner() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={deleteConfirmUid !== null}
+        title="Delete this issue?"
+        message="This can’t be undone. The issue and its activity will be removed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        destructive
+        isLoading={isDeletingIssue}
+        onConfirm={confirmDeleteIssue}
+        onCancel={() => {
+          if (!isDeletingIssue) setDeleteConfirmUid(null);
+        }}
+      />
     </div>
   );
 }

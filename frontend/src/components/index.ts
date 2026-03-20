@@ -4,6 +4,7 @@ export { default as DiscussionList } from './DiscussionList';
 export { default as AddDiscussion } from './AddDiscussion';
 export { default as AIAnalysis } from './AIAnalysis';
 export { default as Button } from './common/Button';
+export { default as ConfirmModal } from './common/ConfirmModal';
 export { default as Card } from './common/Card';
 export { default as Header } from './layout/Header';
 export { default as Sidebar } from './layout/Sidebar';
